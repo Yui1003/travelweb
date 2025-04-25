@@ -9,11 +9,11 @@ function getFeaturedDestinations($conn, $limit = 4) {
     $stmt->execute();
     $result = $stmt->get_result();
     $destinations = [];
-    
+
     while($row = $result->fetch_assoc()) {
         $destinations[] = $row;
     }
-    
+
     return $destinations;
 }
 
@@ -22,11 +22,11 @@ function getAllDestinations($conn) {
     $sql = "SELECT * FROM destinations ORDER BY name";
     $result = $conn->query($sql);
     $destinations = [];
-    
+
     while($row = $result->fetch_assoc()) {
         $destinations[] = $row;
     }
-    
+
     return $destinations;
 }
 
@@ -37,11 +37,11 @@ function getDestinationById($conn, $id) {
     $stmt->bind_param("i", $id);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     if ($result->num_rows === 0) {
         return null;
     }
-    
+
     return $result->fetch_assoc();
 }
 
@@ -56,11 +56,11 @@ function getPackagesByDestination($conn, $destinationId) {
     $stmt->execute();
     $result = $stmt->get_result();
     $packages = [];
-    
+
     while($row = $result->fetch_assoc()) {
         $packages[] = $row;
     }
-    
+
     return $packages;
 }
 
@@ -76,11 +76,11 @@ function getFeaturedPackages($conn, $limit = 6) {
     $stmt->execute();
     $result = $stmt->get_result();
     $packages = [];
-    
+
     while($row = $result->fetch_assoc()) {
         $packages[] = $row;
     }
-    
+
     return $packages;
 }
 
@@ -92,11 +92,11 @@ function getAllPackages($conn) {
             ORDER BY p.id DESC";
     $result = $conn->query($sql);
     $packages = [];
-    
+
     while($row = $result->fetch_assoc()) {
         $packages[] = $row;
     }
-    
+
     return $packages;
 }
 
@@ -110,11 +110,11 @@ function getPackageById($conn, $id) {
     $stmt->bind_param("i", $id);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     if ($result->num_rows === 0) {
         return null;
     }
-    
+
     return $result->fetch_assoc();
 }
 
@@ -135,7 +135,7 @@ function sanitizeInput($data) {
 function formatItinerary($itinerary) {
     $lines = explode("\n", $itinerary);
     $html = '<div class="itinerary-timeline">';
-    
+
     foreach ($lines as $line) {
         if (!empty(trim($line))) {
             $parts = explode(':', $line, 2);
@@ -151,9 +151,29 @@ function formatItinerary($itinerary) {
             }
         }
     }
-    
+
     $html .= '</div>';
     return $html;
+}
+
+// Get package reviews
+function getPackageReviews($conn, $packageId) {
+    $sql = "SELECT r.*, u.full_name, u.profile_img 
+            FROM reviews r 
+            JOIN users u ON r.user_id = u.id 
+            WHERE r.package_id = ? AND r.status = 'approved' 
+            ORDER BY r.created_at DESC";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $packageId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $reviews = [];
+
+    while($row = $result->fetch_assoc()) {
+        $reviews[] = $row;
+    }
+
+    return $reviews;
 }
 
 // Get attractions by destination
@@ -164,11 +184,11 @@ function getAttractionsByDestination($conn, $destinationId) {
     $stmt->execute();
     $result = $stmt->get_result();
     $attractions = [];
-    
+
     while($row = $result->fetch_assoc()) {
         $attractions[] = $row;
     }
-    
+
     return $attractions;
 }
 
@@ -176,16 +196,46 @@ function getAttractionsByDestination($conn, $destinationId) {
 function formatListItems($items) {
     $lines = explode("\n", $items);
     $html = '<ul class="feature-list">';
-    
+
     foreach ($lines as $line) {
         if (!empty(trim($line))) {
             $html .= '<li><i class="fas fa-check-circle"></i> ' . trim($line) . '</li>';
         }
     }
-    
+
     $html .= '</ul>';
     return $html;
 }
+
+// Search packages by term
+function searchPackages($conn, $term) {
+    $searchTerm = "%$term%";
+    $sql = "SELECT p.*, d.name as destination_name, d.image_url 
+            FROM packages p 
+            JOIN destinations d ON p.destination_id = d.id 
+            WHERE p.title LIKE ? 
+            OR d.name LIKE ? 
+            OR d.country LIKE ? 
+            OR p.description LIKE ?";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ssss", $searchTerm, $searchTerm, $searchTerm, $searchTerm);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $packages = [];
+
+    while($row = $result->fetch_assoc()) {
+        $packages[] = $row;
+    }
+
+    return $packages;
+}
+
+// Generate unique confirmation number for bookings
+function generateConfirmationNumber() {
+    $prefix = 'BK';
+    $timestamp = time();
+    $random = rand(1000, 9999);
+    return $prefix . $timestamp . $random;
+}
 ?>
-
-

@@ -237,8 +237,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['booking_submit'])) {
                     <div class="package-sidebar-body">
                         <p>If you have questions about this tour or need help with booking, contact our travel experts:</p>
                         <div class="contact-info">
-                            <div><i class="fas fa-phone-alt"></i> +63 (123) 456-7890</div>
-                            <div><i class="fas fa-envelope"></i> booking@wanderlust.com</div>
+                            <div><i class="fas fa-phone-alt"></i> +63999-791-4791</div>
+                            <div><i class="fas fa-envelope"></i> j.jomarie1435@gmail.com</div>
                         </div>
                         <div class="d-grid mt-3">
                             <a href="contact.php" class="btn btn-outline-primary">Contact Us</a>
