@@ -246,6 +246,53 @@ if (isset($_GET['mark_read']) && isset($_GET['message_id'])) {
                 </div>
             </div>
         </div>
+
+        <!-- Package Management -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="dashboard-card">
+                    <div class="dashboard-card-header">
+                        <h2><i class="fas fa-suitcase me-2"></i>Package Management</h2>
+                    </div>
+                    <div class="dashboard-card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Package</th>
+                                        <th>Destination</th>
+                                        <th>Price</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    $packages = getAllPackages($conn);
+                                    foreach($packages as $package): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($package['title']); ?></td>
+                                        <td><?php echo htmlspecialchars($package['destination_name']); ?></td>
+                                        <td><?php echo formatCurrency($package['price']); ?></td>
+                                        <td>
+                                            <span class="badge bg-<?php echo $package['status'] == 'active' ? 'success' : 'warning'; ?>">
+                                                <?php echo ucfirst($package['status']); ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="edit-package.php?id=<?php echo $package['id']; ?>" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 

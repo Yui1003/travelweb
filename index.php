@@ -8,10 +8,10 @@ $featuredPackages = getFeaturedPackages($conn);
 ?>
 
 <!-- Hero Section -->
-<section class="hero" style="background-image: url('https://images.unsplash.com/photo-1605130284535-11dd9eedc58a');">
+<section class="hero" style="background-image: url('https://images.unsplash.com/photo-1494676051766-7a7454d53904?q=80&w=2073&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');">
     <div class="container">
         <div class="hero-content" data-aos="fade-up">
-            <h1 class="hero-title">Discover the World's Beauty</h1>
+            <h1 class="hero-title">Discover the Philippines' Beauty</h1>
             <p class="hero-subtitle">Explore breathtaking destinations and create unforgettable memories</p>
             
             <div class="hero-search-form">

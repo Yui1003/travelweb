@@ -210,7 +210,7 @@ function formatListItems($items) {
 // Search packages by term
 function searchPackages($conn, $term) {
     $searchTerm = "%$term%";
-    $sql = "SELECT p.*, d.name as destination_name, d.image_url 
+    $sql = "SELECT p.*, d.name as destination_name, d.image_url, d.description as destination_description, p.price 
             FROM packages p 
             JOIN destinations d ON p.destination_id = d.id 
             WHERE p.title LIKE ? 
@@ -237,5 +237,32 @@ function generateConfirmationNumber() {
     $timestamp = time();
     $random = rand(1000, 9999);
     return $prefix . $timestamp . $random;
+}
+
+// Get user bookings
+function getUserBookings($conn, $userId) {
+    $sql = "SELECT b.*, p.title as package_title, d.name as destination_name, 
+            b.confirmation_number, b.travel_date, b.num_travelers, b.total_price, b.status,
+            b.special_requests 
+            FROM bookings b 
+            JOIN packages p ON b.package_id = p.id 
+            JOIN destinations d ON p.destination_id = d.id 
+            WHERE b.user_id = ? 
+            ORDER BY b.booking_date DESC";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $bookings = [];
+    while ($row = $result->fetch_assoc()) {
+        // Format dates and currency
+        $row['travel_date'] = date('M d, Y', strtotime($row['travel_date']));
+        $row['total_price'] = formatCurrency($row['total_price']);
+        $bookings[] = $row;
+    }
+
+    return $bookings;
 }
 ?>

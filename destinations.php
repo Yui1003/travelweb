@@ -5,11 +5,11 @@ include 'includes/header.php';
 
 // Define destination images
 $destinationImages = [
-    'Bohol' => 'https://images.unsplash.com/photo-1552939452-12019b0d0284?auto=format&fit=crop&q=80', // Chocolate Hills
+    'Bohol' => 'https://images.unsplash.com/photo-1667823506151-836beb11723d?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Chocolate Hills
     'Boracay' => 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80', // White Beach 
-    'Cebu' => 'https://images.unsplash.com/photo-1661748917131-e1c0be043d5b?auto=format&fit=crop&q=80', // Cebu City
-    'Palawan' => 'https://images.unsplash.com/photo-1568841278851-9dc4dc5a3523?auto=format&fit=crop&q=80', // El Nido Lagoon
-    'Siargao' => 'https://images.unsplash.com/photo-1629892682786-a8f5bd53194c?auto=format&fit=crop&q=80' // Cloud 9 Wave
+    'Cebu' => 'https://images.unsplash.com/photo-1495162048225-6b3b37b8a69e?q=80&w=1933&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Cebu City
+    'Palawan' => 'https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // El Nido Lagoon
+    'Siargao' => 'https://images.unsplash.com/photo-1565340076637-825894a74ca6?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' // Cloud 9 Wave
 ];
 
 
@@ -195,15 +195,15 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
             <?php foreach ($packages as $package): ?>
                 <div class="col-md-6 col-lg-4 mb-4">
                     <div class="package-card h-100" data-aos="fade-up">
-                        <img src="<?php echo $package['image_url']; ?>" alt="<?php echo $package['title']; ?>" class="package-img">
+                        <img src="<?php echo htmlspecialchars($package['image_url']); ?>" alt="<?php echo htmlspecialchars($package['title']); ?>" class="package-img">
                         <div class="package-card-content">
-                            <h3><?php echo $package['title']; ?></h3>
+                            <h3><?php echo htmlspecialchars($package['title']); ?></h3>
                             <div class="package-meta">
-                                <div><i class="fas fa-map-marker-alt"></i> <?php echo $package['destination_name']; ?></div>
-                                <div><i class="fas fa-clock"></i> <?php echo $package['duration']; ?> days</div>
+                                <div><i class="fas fa-map-marker-alt"></i> <?php echo htmlspecialchars($package['destination_name']); ?></div>
+                                <div><i class="fas fa-clock"></i> <?php echo isset($package['duration']) ? htmlspecialchars($package['duration']) . ' days' : 'Duration N/A'; ?></div>
                             </div>
                             <div class="package-price">
-                                <?php echo formatCurrency($package['price']); ?> <span>/ per person</span>
+                                <?php echo isset($package['price']) ? formatCurrency($package['price']) : 'Price on request'; ?> <span>/ per person</span>
                             </div>
                             <a href="package-details.php?id=<?php echo $package['id']; ?>" class="btn btn-primary w-100">View Details</a>
                         </div>
