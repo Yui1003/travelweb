@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 26, 2025 at 03:22 PM
+-- Generation Time: Apr 26, 2025 at 07:42 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -70,6 +70,7 @@ CREATE TABLE `bookings` (
   `payment_method` varchar(50) NOT NULL,
   `payment_status` enum('pending','confirmed','cancelled') DEFAULT 'pending',
   `reference_number` varchar(100) DEFAULT NULL,
+  `payment_proof` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -78,9 +79,8 @@ CREATE TABLE `bookings` (
 -- Dumping data for table `bookings`
 --
 
-INSERT INTO `bookings` (`id`, `user_id`, `package_id`, `booking_date`, `travel_date`, `num_travelers`, `total_price`, `status`, `confirmation_number`, `special_requests`, `payment_method`, `payment_status`, `reference_number`, `created_at`, `updated_at`) VALUES
-(1, 1, 2, '2025-04-26', '2025-04-28', 1, 25000.00, 'confirmed', 'BK17456585172909', '', '', 'pending', NULL, '2025-04-26 09:08:37', '2025-04-26 13:08:17'),
-(5, 3, 4, '2025-04-26', '2025-04-28', 1, 8000.00, 'confirmed', 'BK17456720041461', '', '0', 'pending', NULL, '2025-04-26 12:53:24', '2025-04-26 13:21:43');
+INSERT INTO `bookings` (`id`, `user_id`, `package_id`, `booking_date`, `travel_date`, `num_travelers`, `total_price`, `status`, `confirmation_number`, `special_requests`, `payment_method`, `payment_status`, `reference_number`, `payment_proof`, `created_at`, `updated_at`) VALUES
+(10, 3, 4, '0000-00-00', '2025-04-30', 1, 8000.00, 'pending', 'BK17456890331887', '', 'bank_transfer', 'pending', 'REF202504262137', '', '2025-04-26 17:37:13', '2025-04-26 17:37:13');
 
 -- --------------------------------------------------------
 
@@ -365,7 +365,7 @@ ALTER TABLE `attractions`
 -- AUTO_INCREMENT for table `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `destinations`
