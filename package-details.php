@@ -65,11 +65,11 @@ if (isset($_FILES['proofOfPayment']) && $_FILES['proofOfPayment']['error'] == 0)
     if (!file_exists($upload_dir)) {
         mkdir($upload_dir, 0777, true);
     }
-    
+
     $file_extension = pathinfo($_FILES['proofOfPayment']['name'], PATHINFO_EXTENSION);
     $file_name = uniqid('receipt_') . '.' . $file_extension;
     $file_path = $upload_dir . $file_name;
-    
+
     if (move_uploaded_file($_FILES['proofOfPayment']['tmp_name'], $file_path)) {
         $payment_proof = $file_path;
     }
@@ -211,7 +211,7 @@ if ($stmt->execute()) {
                             <?php echo formatCurrency($package['price']); ?> <span>/ per person</span>
                         </div>
 
-                        <form method="post" action="package-details.php?id=<?php echo $packageId; ?>" id="bookingForm">
+                        <form method="post" action="package-details.php?id=<?php echo $packageId; ?>" id="bookingForm" enctype="multipart/form-data">
                             <div class="mb-3">
                                 <label for="travelDate" class="form-label">Travel Date</label>
                                 <input type="date" class="form-control" id="travelDate" name="travel_date" required>
@@ -269,9 +269,9 @@ if ($stmt->execute()) {
                                 <label for="bankRefNumber" class="form-label">Bank Reference Number *</label>
                                 <input type="text" class="form-control" id="bankRefNumber" name="reference_number" pattern="[A-Za-z0-9]{10,}" required>
                                 <div class="form-text">Enter the reference/tracking number from your bank transfer</div>
-                                
+
                                 <label for="proofOfPayment" class="form-label mt-3">Proof of Payment *</label>
-                                <input type="file" class="form-control" id="proofOfPayment" name="proof_of_payment" accept="image/*" required>
+                                <input type="file" class="form-control" id="proofOfPayment" name="proofOfPayment" accept="image/*" required>
                                 <div class="form-text">Upload a screenshot or photo of your payment confirmation</div>
                             </div>
 
@@ -341,7 +341,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Hide all payment details first
         gcashDetails.style.display = 'none';
         bankDetails.style.display = 'none';
-        
+
         // Reset form validation
         const allInputs = document.querySelectorAll('#gcashDetails input, #bankDetails input');
         allInputs.forEach(input => {
@@ -355,9 +355,9 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (this.value === 'bank_transfer') {
             bankDetails.style.display = 'block';
             document.querySelector('#bankDetails input[name="reference_number"]').setAttribute('required', 'required');
-            document.querySelector('#bankDetails input[name="proof_of_payment"]').setAttribute('required', 'required');
+            document.querySelector('#bankDetails input[name="proofOfPayment"]').setAttribute('required', 'required');
         }
-        
+
         // Update payment amounts in instructions
         const paymentAmounts = document.querySelectorAll('.payment-amount');
         const totalAmount = document.getElementById('totalPrice').textContent;
@@ -370,7 +370,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('bookingForm').addEventListener('submit', function(e) {
         const paymentMethod = document.getElementById('paymentMethod').value;
         let refNumber;
-        
+
         if (paymentMethod === 'gcash') {
             refNumber = document.getElementById('gcashRefNumber').value;
             if (!/^[0-9]{13}$/.test(refNumber)) {
@@ -385,7 +385,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('Please enter a valid bank reference number (minimum 10 characters)');
                 return;
             }
-            
+
             const proofFile = document.getElementById('proofOfPayment').files[0];
             if (!proofFile) {
                 e.preventDefault();

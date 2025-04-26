@@ -4,6 +4,9 @@ include 'includes/db_connect.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES["proof_of_payment"])) {
     $target_dir = "uploads/receipts/";
+if (!file_exists($target_dir)) {
+    mkdir($target_dir, 0777, true);
+}
     $file_extension = strtolower(pathinfo($_FILES["proof_of_payment"]["name"], PATHINFO_EXTENSION));
     $new_filename = uniqid() . '.' . $file_extension;
     $target_file = $target_dir . $new_filename;
