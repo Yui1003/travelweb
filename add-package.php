@@ -146,6 +146,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_package'])) {
                                             </select>
                                         </div>
 
+                                        <div class="mb-3">
+                                            <label for="image_url" class="form-label">Package Image URL</label>
+                                            <input type="url" class="form-control" id="image_url" name="image_url" placeholder="Enter image URL">
+                                        </div>
+
                                         <div class="mb-3 form-check">
                                             <input type="checkbox" class="form-check-input" id="featured" name="featured">
                                             <label class="form-check-label" for="featured">Feature this package</label>

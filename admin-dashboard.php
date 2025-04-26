@@ -205,7 +205,7 @@ if (isset($_GET['mark_read']) && isset($_GET['message_id'])) {
                             <?php endforeach; ?>
                         </div>
                         <div class="text-end mt-3">
-                            <a href="packages.php" class="btn btn-sm btn-outline-primary">Manage Packages</a>
+                            
                         </div>
                         <?php else: ?>
                         <div class="alert alert-info">No package data available.</div>

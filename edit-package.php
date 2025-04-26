@@ -44,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_package'])) {
     $featured = isset($_POST['featured']) ? 1 : 0;
     $discountPercent = (int)$_POST['discount_percent'];
     $status = sanitizeInput($_POST['status']);
+    $imageUrl = sanitizeInput($_POST['image_url']); // Added image_url
 
     // Validate form data
     if (empty($title) || empty($description) || $price <= 0 || $duration <= 0) {
@@ -62,11 +63,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_package'])) {
                 exclusions = ?, 
                 featured = ?, 
                 discount_percent = ?, 
-                status = ? 
+                status = ?,
+                image_url = ? 
                 WHERE id = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("issdiisssiisi", $destinationId, $title, $description, $price, $duration, 
-                        $maxTravelers, $itinerary, $inclusions, $exclusions, $featured, $discountPercent, $status, $packageId);
+        $stmt->bind_param("issdiisssiissi", $destinationId, $title, $description, $price, $duration, 
+                        $maxTravelers, $itinerary, $inclusions, $exclusions, $featured, $discountPercent, $status, $imageUrl, $packageId);
 
         if ($stmt->execute()) {
             // Redirect to the package details page
@@ -172,6 +174,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_package'])) {
                                             </select>
                                         </div>
 
+                                        <div class="mb-3">
+                                            <label for="image_url" class="form-label">Package Image URL</label>
+                                            <input type="url" class="form-control" id="image_url" name="image_url" value="<?php echo htmlspecialchars($package['image_url']); ?>" placeholder="Enter image URL">
+                                        </div>
+
                                         <div class="mb-3 form-check">
                                             <input type="checkbox" class="form-check-input" id="featured" name="featured">
                                             <label class="form-check-label" for="featured">Feature this package</label>
@@ -229,7 +236,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_package'])) {
 <!-- Form validation script -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('addPackageForm');
+    const form = document.getElementById('editPackageForm'); // Corrected ID
 
     form.addEventListener('submit', function(event) {
         let isValid = true;

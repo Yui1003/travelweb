@@ -66,7 +66,7 @@ function getPackagesByDestination($conn, $destinationId) {
 
 // Get featured packages
 function getFeaturedPackages($conn, $limit = 6) {
-    $sql = "SELECT p.*, d.name as destination_name, d.image_url 
+    $sql = "SELECT p.*, d.name as destination_name 
             FROM packages p 
             JOIN destinations d ON p.destination_id = d.id 
             WHERE p.featured = 1 

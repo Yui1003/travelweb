@@ -94,7 +94,7 @@ $featuredPackages = getFeaturedPackages($conn);
             <?php foreach ($featuredPackages as $package): ?>
             <div class="col-md-6 col-lg-4">
                 <div class="package-card" data-aos="fade-up">
-                    <img src="<?php echo $package['image_url']; ?>" alt="<?php echo $package['title']; ?>" class="package-img">
+                    <img src="<?php echo !empty($package['image_url']) ? $package['image_url'] : 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&q=80'; ?>" alt="<?php echo $package['title']; ?>" class="package-img">
                     <div class="package-card-content">
                         <h3><?php echo $package['title']; ?></h3>
                         <div class="package-meta">
