@@ -40,6 +40,19 @@ try {
     $message = '<div class="alert alert-danger">Error loading bookings. Please try again later.</div>';
 }
 
+// Handle booking cancellation
+if (isset($_GET['cancel_booking'])) {
+    $bookingId = (int)$_GET['cancel_booking'];
+    $updateSql = "UPDATE bookings SET status = 'cancelled' WHERE id = ? AND user_id = ?";
+    $stmt = $conn->prepare($updateSql);
+    $stmt->bind_param("ii", $bookingId, $_SESSION['user_id']);
+    if ($stmt->execute()) {
+        $message = '<div class="alert alert-success">Booking cancelled successfully.</div>';
+    } else {
+        $message = '<div class="alert alert-danger">Failed to cancel booking. Please try again.</div>';
+    }
+}
+
 // Handle profile update
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_profile'])) {
     $fullName = sanitizeInput($_POST['full_name']);

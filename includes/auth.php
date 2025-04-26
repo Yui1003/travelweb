@@ -14,54 +14,64 @@ function registerUser($conn, $username, $email, $password, $fullName, $phone = n
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     if ($result->num_rows > 0) {
         return ["success" => false, "message" => "Username already exists. Please choose another."];
     }
-    
+
     // Check if email exists
     $sql = "SELECT id FROM users WHERE email = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     if ($result->num_rows > 0) {
         return ["success" => false, "message" => "Email already registered. Please use another email or login."];
     }
-    
-    // Get role ID based on role name
-    $sql = "SELECT id FROM roles WHERE name = ?";
+
+    // Get role ID based on role name (case insensitive)
+    $sql = "SELECT id FROM roles WHERE LOWER(name) = LOWER(?)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $role);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     if ($result->num_rows === 0) {
         return ["success" => false, "message" => "Invalid role specified."];
     }
-    
+
     $roleRow = $result->fetch_assoc();
     $roleId = $roleRow['id'];
-    
+
     // Hash password
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-    
+
     // Insert user into database
     $sql = "INSERT INTO users (role_id, username, email, password, full_name, phone, address) VALUES (?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("issssss", $roleId, $username, $email, $hashedPassword, $fullName, $phone, $address);
-    
+
     if ($stmt->execute()) {
         // Get the new user's ID
         $userId = $stmt->insert_id;
-        
+
         // Set user session
         $_SESSION['user_id'] = $userId;
         $_SESSION['username'] = $username;
         $_SESSION['full_name'] = $fullName;
-        $_SESSION['role'] = $role;
-        
+        $_SESSION['role'] = strtolower($role); //Store the role as lowercase
+
+        // Redirect based on role
+        if (strtolower($role) === 'admin') {
+            header("Location: admin-dashboard.php");
+        } elseif (strtolower($role) === 'tour operator') {
+            header("Location: operator-dashboard.php");
+        } else {
+            header("Location: traveler-dashboard.php");
+        }
+        exit;
+
         return ["success" => true, "message" => "Registration successful! Welcome to our travel platform."];
     } else {
         return ["success" => false, "message" => "Registration failed. Please try again later."];
@@ -78,20 +88,30 @@ function loginUser($conn, $username, $password) {
     $stmt->bind_param("ss", $username, $username);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     if ($result->num_rows === 0) {
         return ["success" => false, "message" => "User not found. Please check your username or email."];
     }
-    
+
     $user = $result->fetch_assoc();
-    
+
     if (password_verify($password, $user['password'])) {
         // Set user session
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['full_name'] = $user['full_name'];
-        $_SESSION['role'] = $user['role'];
-        
+        $_SESSION['role'] = strtolower($user['role']);
+
+        // Redirect to dashboard based on role
+        if (strtolower($_SESSION['role']) === 'admin') {
+            header("Location: admin-dashboard.php");
+        } elseif (strtolower($_SESSION['role']) === 'tour operator') {
+            header("Location: operator-dashboard.php");
+        } else {
+            header("Location: traveler-dashboard.php");
+        }
+        exit; //Important to exit after redirect
+
         return ["success" => true, "message" => "Login successful! Welcome back."];
     } else {
         return ["success" => false, "message" => "Incorrect password. Please try again."];
@@ -121,8 +141,8 @@ function hasRole($role) {
     if (!isLoggedIn()) {
         return false;
     }
-    
-    return $_SESSION['role'] === $role;
+
+    return strtolower($_SESSION['role']) === strtolower($role);
 }
 
 // Check if user is an admin
@@ -132,7 +152,7 @@ function isAdmin() {
 
 // Check if user is a tour operator
 function isOperator() {
-    return hasRole('operator');
+    return hasRole('tour operator');
 }
 
 // Check if user is a traveler
@@ -144,7 +164,7 @@ function isTraveler() {
 function logoutUser() {
     // Unset all session variables
     $_SESSION = [];
-    
+
     // Destroy the session
     if (session_status() === PHP_SESSION_ACTIVE) {
         session_destroy();
@@ -162,11 +182,11 @@ function getUserProfile($conn, $userId) {
     $stmt->bind_param("i", $userId);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     if ($result->num_rows === 0) {
         return null;
     }
-    
+
     return $result->fetch_assoc();
 }
 
@@ -175,7 +195,7 @@ function updateUserProfile($conn, $userId, $fullName, $phone, $address) {
     $sql = "UPDATE users SET full_name = ?, phone = ?, address = ? WHERE id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("sssi", $fullName, $phone, $address, $userId);
-    
+
     return $stmt->execute();
 }
 
@@ -187,24 +207,24 @@ function updateUserPassword($conn, $userId, $currentPassword, $newPassword) {
     $stmt->bind_param("i", $userId);
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     if ($result->num_rows === 0) {
         return ["success" => false, "message" => "User not found."];
     }
-    
+
     $user = $result->fetch_assoc();
-    
+
     if (!password_verify($currentPassword, $user['password'])) {
         return ["success" => false, "message" => "Current password is incorrect."];
     }
-    
+
     // Hash and update new password
     $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-    
+
     $sql = "UPDATE users SET password = ? WHERE id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("si", $hashedPassword, $userId);
-    
+
     if ($stmt->execute()) {
         return ["success" => true, "message" => "Password updated successfully."];
     } else {

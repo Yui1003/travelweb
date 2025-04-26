@@ -1,3 +1,12 @@
+
+<?php
+require_once 'includes/auth.php';
+requireAdmin(); // This will ensure only admins can access this page
+include 'includes/header.php';
+
+// Rest of your admin dashboard code
+?>
+
 <?php
 // Include header
 include 'includes/header.php';
@@ -37,50 +46,55 @@ if (isset($_GET['mark_read']) && isset($_GET['message_id'])) {
             <h1>Admin Dashboard</h1>
             <p>Welcome back, <?php echo $_SESSION['full_name']; ?>!</p>
         </div>
-        
+
         <!-- Statistics Cards -->
-        <div class="dashboard-stats" data-aos="fade-up">
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-                <div class="stat-info">
-                    <h3><?php echo $totalUsers; ?></h3>
-                    <p>Total Users</p>
-                </div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-ticket-alt"></i>
-                </div>
-                <div class="stat-info">
-                    <h3><?php echo $totalBookings; ?></h3>
-                    <p>Total Bookings</p>
+        <div class="row g-4 mb-4" data-aos="fade-up">
+            <div class="col-md-3">
+                <div class="card h-100 bg-primary text-white">
+                    <div class="card-body d-flex align-items-center">
+                        <i class="fas fa-users fa-2x me-3"></i>
+                        <div>
+                            <h3 class="mb-0"><?php echo $totalUsers; ?></h3>
+                            <p class="mb-0">Total Users</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-suitcase"></i>
-                </div>
-                <div class="stat-info">
-                    <h3><?php echo $totalPackages; ?></h3>
-                    <p>Tour Packages</p>
+            <div class="col-md-3">
+                <div class="card h-100 bg-success text-white">
+                    <div class="card-body d-flex align-items-center">
+                        <i class="fas fa-ticket-alt fa-2x me-3"></i>
+                        <div>
+                            <h3 class="mb-0"><?php echo $totalBookings; ?></h3>
+                            <p class="mb-0">Total Bookings</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-map-marker-alt"></i>
+            <div class="col-md-3">
+                <div class="card h-100 bg-info text-white">
+                    <div class="card-body d-flex align-items-center">
+                        <i class="fas fa-suitcase fa-2x me-3"></i>
+                        <div>
+                            <h3 class="mb-0"><?php echo $totalPackages; ?></h3>
+                            <p class="mb-0">Tour Packages</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-info">
-                    <h3><?php echo $totalDestinations; ?></h3>
-                    <p>Destinations</p>
+            </div>
+            <div class="col-md-3">
+                <div class="card h-100 bg-warning text-white">
+                    <div class="card-body d-flex align-items-center">
+                        <i class="fas fa-map-marker-alt fa-2x me-3"></i>
+                        <div>
+                            <h3 class="mb-0"><?php echo $totalDestinations; ?></h3>
+                            <p class="mb-0">Destinations</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        
+
         <div class="row mt-4">
             <!-- Recent Bookings -->
             <div class="col-lg-7" data-aos="fade-up">
@@ -133,7 +147,7 @@ if (isset($_GET['mark_read']) && isset($_GET['message_id'])) {
                     </div>
                 </div>
             </div>
-            
+
             <!-- Messages -->
             <div class="col-lg-5" data-aos="fade-up" id="messages">
                 <div class="dashboard-card">
@@ -177,7 +191,7 @@ if (isset($_GET['mark_read']) && isset($_GET['message_id'])) {
                 </div>
             </div>
         </div>
-        
+
         <div class="row mt-4">
             <!-- Popular Packages -->
             <div class="col-md-6" data-aos="fade-up">
@@ -208,37 +222,37 @@ if (isset($_GET['mark_read']) && isset($_GET['message_id'])) {
                     </div>
                 </div>
             </div>
-            
+
             <!-- Quick Actions -->
             <div class="col-md-6" data-aos="fade-up">
-                <div class="dashboard-card">
-                    <div class="dashboard-card-header">
-                        <h2><i class="fas fa-bolt me-2"></i>Quick Actions</h2>
+                <div class="card h-100">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
                     </div>
-                    <div class="dashboard-card-body">
+                    <div class="card-body">
                         <div class="row g-3">
                             <div class="col-6">
-                                <a href="add-package.php" class="btn btn-outline-primary w-100 p-3">
-                                    <i class="fas fa-plus-circle mb-2 d-block fs-4"></i>
-                                    Add New Package
+                                <a href="add-package.php" class="btn btn-light border w-100 h-100 d-flex flex-column align-items-center justify-content-center p-4">
+                                    <i class="fas fa-plus-circle fa-2x mb-2 text-primary"></i>
+                                    <span>Add Package</span>
                                 </a>
                             </div>
                             <div class="col-6">
-                                <a href="add-destination.php" class="btn btn-outline-primary w-100 p-3">
-                                    <i class="fas fa-map-marked-alt mb-2 d-block fs-4"></i>
-                                    Add New Destination
+                                <a href="add-destination.php" class="btn btn-light border w-100 h-100 d-flex flex-column align-items-center justify-content-center p-4">
+                                    <i class="fas fa-map-marked-alt fa-2x mb-2 text-success"></i>
+                                    <span>Add Destination</span>
                                 </a>
                             </div>
                             <div class="col-6">
-                                <a href="users.php" class="btn btn-outline-primary w-100 p-3">
-                                    <i class="fas fa-user-cog mb-2 d-block fs-4"></i>
-                                    Manage Users
+                                <a href="users.php" class="btn btn-light border w-100 h-100 d-flex flex-column align-items-center justify-content-center p-4">
+                                    <i class="fas fa-user-cog fa-2x mb-2 text-info"></i>
+                                    <span>Manage Users</span>
                                 </a>
                             </div>
                             <div class="col-6">
-                                <a href="reports.php" class="btn btn-outline-primary w-100 p-3">
-                                    <i class="fas fa-chart-line mb-2 d-block fs-4"></i>
-                                    View Reports
+                                <a href="reports.php" class="btn btn-light border w-100 h-100 d-flex flex-column align-items-center justify-content-center p-4">
+                                    <i class="fas fa-chart-line fa-2x mb-2 text-warning"></i>
+                                    <span>View Reports</span>
                                 </a>
                             </div>
                         </div>
@@ -390,11 +404,11 @@ function getRecentBookings($conn, $limit) {
     $stmt->execute();
     $result = $stmt->get_result();
     $bookings = [];
-    
+
     while($row = $result->fetch_assoc()) {
         $bookings[] = $row;
     }
-    
+
     return $bookings;
 }
 
@@ -405,11 +419,11 @@ function getUnreadMessages($conn, $limit) {
     $stmt->execute();
     $result = $stmt->get_result();
     $messages = [];
-    
+
     while($row = $result->fetch_assoc()) {
         $messages[] = $row;
     }
-    
+
     return $messages;
 }
 
@@ -425,11 +439,11 @@ function getPopularPackages($conn, $limit) {
     $stmt->execute();
     $result = $stmt->get_result();
     $packages = [];
-    
+
     while($row = $result->fetch_assoc()) {
         $packages[] = $row;
     }
-    
+
     return $packages;
 }
 

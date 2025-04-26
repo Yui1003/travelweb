@@ -22,17 +22,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Redirect to intended page or dashboard based on role
         $redirect = isset($_GET['redirect']) ? $_GET['redirect'] : '';
         
-        if (!empty($redirect) && strpos($redirect, 'http') === false) {
-            // Make sure the redirect URL is internal
-            header("Location: " . $redirect);
+        // Check user role and redirect accordingly
+        if (isAdmin()) {
+            header("Location: admin-dashboard.php");
+            exit;
+        } elseif (isOperator()) {
+            header("Location: operator-dashboard.php");
+            exit;
         } else {
-            if (isAdmin()) {
-                header("Location: admin-dashboard.php");
-            } elseif (isOperator()) {
-                header("Location: operator-dashboard.php");
-            } else {
-                header("Location: traveler-dashboard.php");
-            }
+            header("Location: traveler-dashboard.php");
+            exit;
         }
         exit;
     } else {

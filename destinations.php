@@ -92,7 +92,7 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
 
                 <!-- Destination Image -->
                 <div class="mb-4" data-aos="fade-up">
-                    <img src="<?php echo htmlspecialchars($destination['image_url']); ?>" alt="<?php echo htmlspecialchars($destination['name']); ?>" class="img-fluid rounded">
+                    <img src="<?php echo isset($destinationImages[$destination['name']]) ? $destinationImages[$destination['name']] : 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&q=80'; ?>" alt="<?php echo htmlspecialchars($destination['name']); ?>" class="img-fluid rounded">
                 </div>
 
                 <!-- Attractions -->
@@ -127,7 +127,7 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
                             <?php foreach ($packages as $package): ?>
                                 <div class="col-md-6 mb-4">
                                     <div class="package-card h-100">
-                                        <img src="<?php echo htmlspecialchars($destination['image_url']); ?>" alt="<?php echo htmlspecialchars($package['title']); ?>" class="package-img">
+                                        <img src="<?php echo isset($destinationImages[$destination['name']]) ? $destinationImages[$destination['name']] : 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&q=80'; ?>" alt="<?php echo htmlspecialchars($package['title']); ?>" class="package-img">
                                         <div class="package-card-content">
                                             <h3><?php echo htmlspecialchars($package['title']); ?></h3>
                                             <div class="package-meta">

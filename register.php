@@ -1,3 +1,4 @@
+
 <?php
 // Include header
 include 'includes/header.php';
@@ -18,19 +19,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $confirmPassword = $_POST['confirm_password'];
     $fullName = sanitizeInput($_POST['full_name']);
     $phone = sanitizeInput($_POST['phone']);
-    
+    $role = isset($_POST['role']) ? $_POST['role'] : 'traveler';
+    $address = ''; // Default empty address
+
     // Validate passwords match
     if ($password !== $confirmPassword) {
         $message = '<div class="alert alert-danger">Passwords do not match. Please try again.</div>';
     } else {
-        // Register user
-        $result = registerUser($conn, $username, $email, $password, $fullName, $phone);
-        
+        // Register user with all required parameters
+        $result = registerUser($conn, $username, $email, $password, $fullName, $phone, $address, $role);
+
         if ($result['success']) {
             // Redirect to dashboard based on role
-            if (isAdmin()) {
+            if ($_SESSION['role'] === 'admin') {
                 header("Location: admin-dashboard.php");
-            } elseif (isOperator()) {
+            } elseif ($_SESSION['role'] === 'operator') {
                 header("Location: operator-dashboard.php");
             } else {
                 header("Location: traveler-dashboard.php");
@@ -43,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 ?>
 
-<!-- Page Content -->
+<!-- Registration Form -->
 <section class="auth-section">
     <div class="container">
         <div class="row justify-content-center">
@@ -56,30 +59,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <div class="col-md-6">
                             <div class="auth-form" data-aos="fade-left">
                                 <h2>Create an Account</h2>
-                                
+
                                 <?php echo $message; ?>
-                                
+
                                 <form method="post" action="register.php">
                                     <div class="mb-3">
                                         <label for="full_name" class="form-label">Full Name</label>
                                         <input type="text" class="form-control" id="full_name" name="full_name" required>
                                     </div>
-                                    
+
                                     <div class="mb-3">
                                         <label for="username" class="form-label">Username</label>
                                         <input type="text" class="form-control" id="username" name="username" required>
                                     </div>
-                                    
+
                                     <div class="mb-3">
                                         <label for="email" class="form-label">Email Address</label>
                                         <input type="email" class="form-control" id="email" name="email" required>
                                     </div>
-                                    
+
                                     <div class="mb-3">
                                         <label for="phone" class="form-label">Phone Number</label>
                                         <input type="tel" class="form-control" id="phone" name="phone">
                                     </div>
-                                    
+
+                                    <div class="mb-3">
+                                        <label for="role" class="form-label">Account Type</label>
+                                        <select class="form-control" id="role" name="role" required>
+                                            <option value="Traveler">Traveler</option>
+                                            <option value="Tour Operator">Tour Operator</option>
+                                            <option value="Admin">Admin</option>
+                                        </select>
+                                    </div>
+
                                     <div class="mb-3">
                                         <label for="password" class="form-label">Password</label>
                                         <div class="input-group">
@@ -89,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                             </span>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="mb-3">
                                         <label for="confirm_password" class="form-label">Confirm Password</label>
                                         <div class="input-group">
@@ -99,17 +111,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                             </span>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="mb-3 form-check">
                                         <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
                                         <label class="form-check-label" for="terms">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
                                     </div>
-                                    
+
                                     <div class="d-grid">
                                         <button type="submit" class="btn btn-primary">Register</button>
                                     </div>
                                 </form>
-                                
+
                                 <div class="auth-footer">
                                     <p>Already have an account? <a href="login.php">Login</a></p>
                                 </div>
@@ -131,12 +143,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const passwordInput = document.getElementById('password');
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
-            
+
             this.classList.toggle('fa-eye');
             this.classList.toggle('fa-eye-slash');
         });
     }
-    
+
     // Confirm password visibility toggle
     const passwordToggleConfirm = document.querySelector('.password-toggle-confirm');
     if (passwordToggleConfirm) {
@@ -144,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const confirmPasswordInput = document.getElementById('confirm_password');
             const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             confirmPasswordInput.setAttribute('type', type);
-            
+
             this.classList.toggle('fa-eye');
             this.classList.toggle('fa-eye-slash');
         });
@@ -152,7 +164,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php
-// Include footer
-include 'includes/footer.php';
-?>
+<?php include 'includes/footer.php'; ?>

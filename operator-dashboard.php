@@ -1,3 +1,12 @@
+
+<?php
+require_once 'includes/auth.php';
+requireOperator(); // This will ensure only operators can access this page
+include 'includes/header.php';
+
+// Rest of your operator dashboard code
+?>
+
 <?php
 // Include header
 include 'includes/header.php';
@@ -30,49 +39,54 @@ $allDestinations = getAllDestinations($conn);
             <h1>Tour Operator Dashboard</h1>
             <p>Welcome back, <?php echo $_SESSION['full_name']; ?>!</p>
         </div>
-        
+
         <!-- Statistics Cards -->
-        <div class="dashboard-stats" data-aos="fade-up">
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-suitcase"></i>
-                </div>
-                <div class="stat-info">
-                    <h3><?php echo $totalOperatorPackages; ?></h3>
-                    <p>Your Packages</p>
-                </div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-ticket-alt"></i>
-                </div>
-                <div class="stat-info">
-                    <h3><?php echo $totalOperatorBookings; ?></h3>
-                    <p>Total Bookings</p>
+        <div class="row g-4 mb-4" data-aos="fade-up">
+            <div class="col-md-3">
+                <div class="card h-100 bg-primary text-white">
+                    <div class="card-body d-flex align-items-center">
+                        <i class="fas fa-suitcase fa-2x me-3"></i>
+                        <div>
+                            <h3 class="mb-0"><?php echo $totalOperatorPackages; ?></h3>
+                            <p class="mb-0">Your Packages</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-money-bill-wave"></i>
-                </div>
-                <div class="stat-info">
-                    <h3><?php echo formatCurrency($totalEarnings); ?></h3>
-                    <p>Total Earnings</p>
+            <div class="col-md-3">
+                <div class="card h-100 bg-success text-white">
+                    <div class="card-body d-flex align-items-center">
+                        <i class="fas fa-ticket-alt fa-2x me-3"></i>
+                        <div>
+                            <h3 class="mb-0"><?php echo $totalOperatorBookings; ?></h3>
+                            <p class="mb-0">Total Bookings</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-plus-circle"></i>
+            <div class="col-md-3">
+                <div class="card h-100 bg-info text-white">
+                    <div class="card-body d-flex align-items-center">
+                        <i class="fas fa-money-bill-wave fa-2x me-3"></i>
+                        <div>
+                            <h3 class="mb-0"><?php echo formatCurrency($totalEarnings); ?></h3>
+                            <p class="mb-0">Total Earnings</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-info">
-                    <a href="add-package.php" class="btn btn-primary btn-sm">Add New Package</a>
+            </div>
+            <div class="col-md-3">
+                <div class="card h-100 bg-warning text-white">
+                    <div class="card-body d-flex align-items-center">
+                        <i class="fas fa-plus-circle fa-2x me-3"></i>
+                        <div>
+                            <a href="add-package.php" class="btn btn-light btn-sm">Add New Package</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        
+
         <!-- My Packages -->
         <div class="dashboard-card mt-4" data-aos="fade-up">
             <div class="dashboard-card-header">
@@ -124,7 +138,7 @@ $allDestinations = getAllDestinations($conn);
                 <?php endif; ?>
             </div>
         </div>
-        
+
         <!-- Recent Bookings -->
         <div class="dashboard-card mt-4" data-aos="fade-up">
             <div class="dashboard-card-header">
@@ -173,7 +187,7 @@ $allDestinations = getAllDestinations($conn);
                 <?php endif; ?>
             </div>
         </div>
-        
+
         <!-- Earning Reports -->
         <div class="dashboard-card mt-4" data-aos="fade-up">
             <div class="dashboard-card-header">
@@ -198,7 +212,7 @@ $allDestinations = getAllDestinations($conn);
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="mt-4">
                     <h4>Earnings by Package</h4>
                     <div class="table-responsive">
@@ -324,11 +338,11 @@ function getOperatorPackages($conn, $operatorId) {
     $stmt->execute();
     $result = $stmt->get_result();
     $packages = [];
-    
+
     while($row = $result->fetch_assoc()) {
         $packages[] = $row;
     }
-    
+
     return $packages;
 }
 
@@ -344,11 +358,11 @@ function getOperatorBookings($conn, $operatorId) {
     $stmt->execute();
     $result = $stmt->get_result();
     $bookings = [];
-    
+
     while($row = $result->fetch_assoc()) {
         $bookings[] = $row;
     }
-    
+
     return $bookings;
 }
 
@@ -364,13 +378,13 @@ function calculateTotalEarnings($bookings) {
 
 function calculatePackageEarnings($bookings) {
     $packageEarnings = [];
-    
+
     foreach ($bookings as $booking) {
         $packageId = $booking['package_id'];
         $packageTitle = $booking['package_title'];
         $amount = $booking['total_price'];
         $status = $booking['payment_status'];
-        
+
         if (!isset($packageEarnings[$packageId])) {
             $packageEarnings[$packageId] = [
                 'title' => $packageTitle,
@@ -378,14 +392,14 @@ function calculatePackageEarnings($bookings) {
                 'earnings' => 0
             ];
         }
-        
+
         $packageEarnings[$packageId]['bookings']++;
-        
+
         if ($status == 'paid') {
             $packageEarnings[$packageId]['earnings'] += $amount;
         }
     }
-    
+
     return $packageEarnings;
 }
 ?>
