@@ -58,17 +58,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['booking_submit'])) {
     $referenceNumber = 'REF' . date('Ymd') . rand(1000, 9999);
     $stmt->bind_param("iisiissss", $userId, $packageId, $travelDate, $numTravelers, $totalPrice, $confirmationNumber, $specialRequests, $paymentMethod, $referenceNumber);
 
+    // Execute the statement
     if ($stmt->execute()) {
         $bookingId = $stmt->insert_id; // Get the last inserted booking ID
 
         // Handle file upload based on payment method
         $payment_proof = '';
-        if ($paymentMethod === 'gcash' && isset($_FILES['gcashProofOfPayment']) && $_FILES['gcashProofOfPayment']['error'] == 0) {
-            $upload_dir = 'uploads/receipts/';
-            if (!file_exists($upload_dir)) {
-                mkdir($upload_dir, 0777, true);
-            }
+        $upload_dir = 'uploads/receipts/';
+        if (!file_exists($upload_dir)) {
+            mkdir($upload_dir, 0777, true);
+        }
 
+        // Handle GCash payment proof upload
+        if ($paymentMethod === 'gcash' && isset($_FILES['gcashProofOfPayment']) && $_FILES['gcashProofOfPayment']['error'] == 0) {
             $file_extension = pathinfo($_FILES['gcashProofOfPayment']['name'], PATHINFO_EXTENSION);
             $file_name = 'gcash_receipt_' . uniqid() . '.' . $file_extension;
             $file_path = $upload_dir . $file_name;
@@ -78,12 +80,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['booking_submit'])) {
             } else {
                 $bookingMessage = '<div class="alert alert-danger">GCash proof of payment upload failed.</div>';
             }
-        } elseif ($paymentMethod === 'bank_transfer' && isset($_FILES['bankProofOfPayment']) && $_FILES['bankProofOfPayment']['error'] == 0) {
-            $upload_dir = 'uploads/receipts/';
-            if (!file_exists($upload_dir)) {
-                mkdir($upload_dir, 0777, true);
-            }
+        }
 
+        // Handle Bank Transfer payment proof upload
+        if ($paymentMethod === 'bank_transfer' && isset($_FILES['bankProofOfPayment']) && $_FILES['bankProofOfPayment']['error'] == 0) {
             $file_extension = pathinfo($_FILES['bankProofOfPayment']['name'], PATHINFO_EXTENSION);
             $file_name = 'bank_receipt_' . uniqid() . '.' . $file_extension;
             $file_path = $upload_dir . $file_name;
@@ -106,7 +106,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['booking_submit'])) {
         // Set success message
         $bookingMessage = '<div class="alert alert-success">Booking Successful!</div>';
     } else {
-        $bookingMessage = '<div class="alert alert-danger">Booking Failed.</div>';
+        // Log the error for debugging
+        error_log("Booking failed: " . $stmt->error);
+        $bookingMessage = '<div class="alert alert-danger">Booking Failed. Please try again.</div>';
     }
 }
 ?>
