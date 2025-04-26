@@ -173,10 +173,14 @@ if (isset($_GET['mark_read']) && isset($_GET['message_id'])) {
                             <?php endforeach; ?>
                         </div>
                         <div class="text-end mt-3">
+                            <a href="messages.php?filter=unread" class="btn btn-sm btn-outline-warning me-2">View Unread Messages</a>
                             <a href="messages.php" class="btn btn-sm btn-outline-primary">View All Messages</a>
                         </div>
                         <?php else: ?>
                         <div class="alert alert-info">No unread messages.</div>
+                        <div class="text-end mt-3">
+                            <a href="messages.php" class="btn btn-sm btn-outline-primary">View All Messages</a>
+                        </div>
                         <?php endif; ?>
                     </div>
                 </div>

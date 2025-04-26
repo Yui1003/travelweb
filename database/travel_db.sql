@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 26, 2025 at 11:24 AM
+-- Generation Time: Apr 26, 2025 at 12:34 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -150,6 +150,7 @@ CREATE TABLE `packages` (
   `featured` tinyint(1) DEFAULT 0,
   `discount_percent` int(11) DEFAULT 0,
   `created_by` int(11) DEFAULT NULL,
+  `image_url` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `status` enum('active','inactive','sold-out') DEFAULT 'active'
@@ -159,12 +160,12 @@ CREATE TABLE `packages` (
 -- Dumping data for table `packages`
 --
 
-INSERT INTO `packages` (`id`, `destination_id`, `title`, `description`, `price`, `duration`, `max_travelers`, `itinerary`, `inclusions`, `exclusions`, `featured`, `discount_percent`, `created_by`, `created_at`, `updated_at`, `status`) VALUES
-(1, 1, 'Boracay Beach Getaway', 'Experience the stunning white sand beaches and vibrant nightlife of Boracay with this all-inclusive package.', 15000.00, 4, 10, 'Day 1: Arrival and Hotel Check-in\nDay 2: White Beach and Water Activities\nDay 3: Island Hopping Tour\nDay 4: Free Time and Departure', 'Accommodation\nDaily breakfast\nIsland hopping tour\nAirport transfers\nWelcome drink', 'Flights\nTravel insurance\nPersonal expenses\nOptional activities not mentioned\nMeals not specified', 1, 0, 2, '2025-04-26 09:08:14', '2025-04-26 09:08:14', 'active'),
-(2, 2, 'Palawan Adventure', 'Discover the natural wonders of Palawan, from the Underground River to pristine beaches and limestone cliffs.', 25000.00, 5, 8, 'Day 1: Arrival in Puerto Princesa and Hotel Check-in\nDay 2: Underground River Tour\nDay 3: Honda Bay Island Hopping\nDay 4: City Tour and Firefly Watching\nDay 5: Free Time and Departure', 'Accommodation (4 nights)\nDaily breakfast\nUnderground River tour with lunch\nHonda Bay island hopping with lunch\nCity tour\nAirport transfers', 'Flights\nTravel insurance\nPersonal expenses\nOptional activities not mentioned\nMeals not specified', 1, 5, 2, '2025-04-26 09:08:14', '2025-04-26 09:08:14', 'active'),
-(3, 3, 'Cebu Island Adventure', 'Explore the rich culture and beautiful beaches of Cebu.', 15000.00, 5, 10, 'Day 1: Arrival,\nDay 2: Island Hopping, \nDay 3: city tour, \nDay 4: Waterfall tour, \nDay 5: Departure', 'Accommodation, \n Breakfast, \n Sightseeing', 'Airfare', 1, 10, 2, '2025-04-26 09:08:14', '2025-04-26 09:08:14', 'active'),
-(4, 4, 'Bohol and Chocolate Hills Tour', 'Discover Bohol and its famous Chocolate Hills.', 12000.00, 3, 8, 'Day 1: Arrival and tour, \nDay 2: Adventure activities, \nDay 3: Departure', 'Accommodation, \nBreakfast', 'Meals', 1, 5, 2, '2025-04-26 09:08:14', '2025-04-26 09:08:14', 'active'),
-(5, 5, 'Siargao Surfing Package', 'Surf the best waves in Siargao.', 18000.00, 4, 6, 'Day 1: Arrival, \nDay 2: Surf lessons, \nDay 3: Island hopping, \nDay 4: Departure', 'Accommodation,\nSurfboard rental', 'Meals', 1, 15, 2, '2025-04-26 09:08:14', '2025-04-26 09:08:14', 'active');
+INSERT INTO `packages` (`id`, `destination_id`, `title`, `description`, `price`, `duration`, `max_travelers`, `itinerary`, `inclusions`, `exclusions`, `featured`, `discount_percent`, `created_by`, `image_url`, `created_at`, `updated_at`, `status`) VALUES
+(1, 1, 'Boracay Beach Getaway', 'Experience the stunning white sand beaches and vibrant nightlife of Boracay with this all-inclusive package.', 15000.00, 4, 10, 'Day 1: Arrival and Hotel Check-in\nDay 2: White Beach and Water Activities\nDay 3: Island Hopping Tour\nDay 4: Free Time and Departure', 'Accommodation\nDaily breakfast\nIsland hopping tour\nAirport transfers\nWelcome drink', 'Flights\nTravel insurance\nPersonal expenses\nOptional activities not mentioned\nMeals not specified', 1, 0, 2, NULL, '2025-04-26 09:08:14', '2025-04-26 09:08:14', 'active'),
+(2, 2, 'Palawan Adventure', 'Discover the natural wonders of Palawan, from the Underground River to pristine beaches and limestone cliffs.', 25000.00, 5, 8, 'Day 1: Arrival in Puerto Princesa and Hotel Check-in\nDay 2: Underground River Tour\nDay 3: Honda Bay Island Hopping\nDay 4: City Tour and Firefly Watching\nDay 5: Free Time and Departure', 'Accommodation (4 nights)\nDaily breakfast\nUnderground River tour with lunch\nHonda Bay island hopping with lunch\nCity tour\nAirport transfers', 'Flights\nTravel insurance\nPersonal expenses\nOptional activities not mentioned\nMeals not specified', 1, 5, 2, NULL, '2025-04-26 09:08:14', '2025-04-26 09:08:14', 'active'),
+(3, 3, 'Cebu Island Adventure', 'Explore the rich culture and beautiful beaches of Cebu.', 8000.00, 5, 10, 'Day 1: Arrival\r\nDay 2: Island Hopping \r\nDay 3: City Tour\r\nDay 4: Waterfall Tour\r\nDay 5: Departure', 'Accommodations\r\nBreakfast\r\nSightseeing', 'Airfare', 1, 0, 2, 'https://images.unsplash.com/photo-1548780772-e21fa3f2cfd7?q=80&amp;w=1932&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', '2025-04-26 09:08:14', '2025-04-26 10:27:14', 'active'),
+(4, 4, 'Bohol and Chocolate Hills Tour', 'Discover Bohol and its famous Chocolate Hills.', 8000.00, 3, 10, 'Day 1: Arrival and Tour\r\nDay 2: Adventure Activities\r\nDay 3: Departure', 'Accommodations\r\nBreakfast', 'Meal', 1, 0, 2, 'https://images.unsplash.com/photo-1581521801296-5bdb5065472f?q=80&amp;w=1934&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', '2025-04-26 09:08:14', '2025-04-26 10:24:36', 'active'),
+(5, 5, 'Siargao Surfing Package', 'Surf the best waves in Siargao.', 18000.00, 4, 10, 'Day 1: Arrival, \r\nDay 2: Surf lessons, \r\nDay 3: Island hopping, \r\nDay 4: Departure', 'Accommodation,\r\nSurfboard rental', 'Meals', 1, 0, 2, 'https://gttp.images.tshiftcdn.com/316099/x/0/surigao-del-norte-siargao-guyam-island-shutterstock-1177486879-min.jpg?w=380&amp;h=411&amp;fit=crop&amp;crop=center&amp;auto=compress&amp;q=62&amp;dpr=2&amp;fm=pjpg&amp;ixlib=react-9.8.1', '2025-04-26 09:08:14', '2025-04-26 10:13:42', 'active');
 
 -- --------------------------------------------------------
 
@@ -343,7 +344,7 @@ ALTER TABLE `reviews`
 -- AUTO_INCREMENT for table `roles`
 --
 ALTER TABLE `roles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `users`

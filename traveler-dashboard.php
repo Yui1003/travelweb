@@ -69,6 +69,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_profile'])) {
 }
 
 // Handle password update
+// Process message submission
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['send_message'])) {
+    $subject = sanitizeInput($_POST['subject']);
+    $messageText = sanitizeInput($_POST['message']);
+    $userId = $_SESSION['user_id'];
+    $userName = $_SESSION['full_name'];
+    
+    // Get user's email from the database
+    $userStmt = $conn->prepare("SELECT email FROM users WHERE id = ?");
+    $userStmt->bind_param("i", $userId);
+    $userStmt->execute();
+    $userResult = $userStmt->get_result();
+    $userEmail = $userResult->fetch_assoc()['email'];
+
+    $sql = "INSERT INTO messages (user_id, name, email, subject, message) VALUES (?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("issss", $userId, $userName, $userEmail, $subject, $messageText);
+
+    if ($stmt->execute()) {
+        $message = '<div class="alert alert-success">Message sent successfully!</div>';
+    } else {
+        $message = '<div class="alert alert-danger">Failed to send message.</div>';
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_password'])) {
     $currentPassword = $_POST['current_password'];
     $newPassword = $_POST['new_password'];
@@ -292,6 +317,143 @@ include 'includes/header.php';
                         </div>
                     </div>
                 </div>
+
+                <!-- Messages Section -->
+                <div class="card mt-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5><i class="fas fa-envelope me-2"></i>Messages</h5>
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#newMessageModal">
+                            <i class="fas fa-plus"></i> New Message
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <!-- Messages List -->
+                        <div class="messages-list">
+                            <?php
+                            $messagesSql = "SELECT m.*, u.full_name as sender_name 
+                                          FROM messages m 
+                                          LEFT JOIN users u ON m.user_id = u.id 
+                                          WHERE m.to_user_id = ? OR m.user_id = ?
+                                          ORDER BY m.created_at DESC";
+                            $stmt = $conn->prepare($messagesSql);
+                            $stmt->bind_param("ii", $_SESSION['user_id'], $_SESSION['user_id']);
+                            $stmt->execute();
+                            $messagesResult = $stmt->get_result();
+                            
+                            if ($messagesResult->num_rows > 0):
+                                while ($message = $messagesResult->fetch_assoc()):
+                            ?>
+                                <div class="message-item <?php echo $message['status'] === 'unread' ? 'unread' : ''; ?>">
+                                    <div class="message-header">
+                                        <div class="message-sender">
+                                            <strong><?php echo $message['user_id'] == $_SESSION['user_id'] ? 'You' : htmlspecialchars($message['sender_name'] ?? $message['name']); ?></strong>
+                                            <span class="text-muted"><?php echo date('M d, Y h:i A', strtotime($message['created_at'])); ?></span>
+                                        </div>
+                                    </div>
+                                    <div class="message-subject">
+                                        <strong>Subject:</strong> <?php echo htmlspecialchars($message['subject']); ?>
+                                    </div>
+                                    <div class="message-content">
+                                        <?php echo nl2br(htmlspecialchars($message['message'])); ?>
+                                    </div>
+                                    <?php if ($message['user_id'] != $_SESSION['user_id']): ?>
+                                    <div class="message-actions mt-2">
+                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#replyModal<?php echo $message['id']; ?>">
+                                            <i class="fas fa-reply"></i> Reply
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Reply Modal -->
+                                    <div class="modal fade" id="replyModal<?php echo $message['id']; ?>" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Reply to Message</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <form method="post">
+                                                    <div class="modal-body">
+                                                        <input type="hidden" name="to_user_id" value="<?php echo $message['user_id']; ?>">
+                                                        <input type="hidden" name="reply_subject" value="<?php echo htmlspecialchars($message['subject']); ?>">
+                                                        <div class="mb-3">
+                                                            <label for="reply_message" class="form-label">Your Reply</label>
+                                                            <textarea class="form-control" name="reply_message" rows="5" required></textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                        <button type="submit" name="send_reply" class="btn btn-primary">Send Reply</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <?php endif; ?>
+                                </div>
+                            <?php 
+                                endwhile;
+                            else:
+                            ?>
+                                <div class="alert alert-info">No messages yet.</div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- New Message Modal -->
+                <div class="modal fade" id="newMessageModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Send New Message</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <form method="post">
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label for="subject" class="form-label">Subject</label>
+                                        <input type="text" class="form-control" id="subject" name="subject" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="message" class="form-label">Message</label>
+                                        <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" name="send_message" class="btn btn-primary">Send Message</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <style>
+                .message-item {
+                    background: #fff;
+                    border: 1px solid #dee2e6;
+                    border-radius: 8px;
+                    padding: 15px;
+                    margin-bottom: 15px;
+                }
+
+                .message-item.unread {
+                    background: #f8f9fa;
+                    border-left: 4px solid #ffc107;
+                }
+
+                .message-content {
+                    background: #f8f9fa;
+                    padding: 10px;
+                    border-radius: 4px;
+                    margin: 10px 0;
+                }
+
+                .messages-list {
+                    max-height: 600px;
+                    overflow-y: auto;
+                }
+                </style>
             </div>
         </div>
     </div>
