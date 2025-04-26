@@ -4,13 +4,6 @@ require_once 'includes/auth.php';
 requireAdmin(); // This will ensure only admins can access this page
 include 'includes/header.php';
 
-// Rest of your admin dashboard code
-?>
-
-<?php
-// Include header
-include 'includes/header.php';
-
 // Require admin access
 requireAdmin();
 
@@ -261,7 +254,53 @@ if (isset($_GET['mark_read']) && isset($_GET['message_id'])) {
             </div>
         </div>
 
-        <!-- Package Management -->
+        <!-- Destination Management -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="dashboard-card">
+            <div class="dashboard-card-header">
+                <h2><i class="fas fa-map-marker-alt me-2"></i>Destination Management</h2>
+            </div>
+            <div class="dashboard-card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Destination</th>
+                                <th>Country</th>
+                                <th>Attractions</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $destinations = getAllDestinations($conn);
+                            foreach($destinations as $destination): 
+                                $attractionCount = count(getAttractionsByDestination($conn, $destination['id']));
+                            ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($destination['name']); ?></td>
+                                <td><?php echo htmlspecialchars($destination['country']); ?></td>
+                                <td><?php echo $attractionCount; ?> attractions</td>
+                                <td>
+                                    <a href="edit-destination.php?id=<?php echo $destination['id']; ?>" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                    <a href="delete-destination.php?id=<?php echo $destination['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this destination? This will also delete all related packages and attractions.')">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </a>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Package Management -->
         <div class="row mt-4">
             <div class="col-12">
                 <div class="dashboard-card">
@@ -296,6 +335,9 @@ if (isset($_GET['mark_read']) && isset($_GET['message_id'])) {
                                         <td>
                                             <a href="edit-package.php?id=<?php echo $package['id']; ?>" class="btn btn-sm btn-primary">
                                                 <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                            <a href="delete-package.php?id=<?php echo $package['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this package?')">
+                                                <i class="fas fa-trash"></i> Delete
                                             </a>
                                         </td>
                                     </tr>

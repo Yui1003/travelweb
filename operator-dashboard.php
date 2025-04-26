@@ -1,18 +1,10 @@
-
 <?php
 require_once 'includes/auth.php';
 requireOperator(); // This will ensure only operators can access this page
 include 'includes/header.php';
 
-// Rest of your operator dashboard code
-?>
-
-<?php
-// Include header
-include 'includes/header.php';
-
 // Require operator access
-requireOperator();
+//This line is removed because requireOperator() is already called above.
 
 // Get operator ID
 $operatorId = $_SESSION['user_id'];
@@ -122,8 +114,12 @@ $allDestinations = getAllDestinations($conn);
                                     </span>
                                 </td>
                                 <td>
-                                    <a href="package-details.php?id=<?php echo $package['id']; ?>" class="btn btn-sm btn-info">View</a>
-                                    <a href="edit-package.php?id=<?php echo $package['id']; ?>" class="btn btn-sm btn-primary">Edit</a>
+                                    <a href="edit-package.php?id=<?php echo $package['id']; ?>" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                    <a href="delete-package.php?id=<?php echo $package['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this package?')">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </a>
                                 </td>
                             </tr>
                             <?php endforeach; ?>

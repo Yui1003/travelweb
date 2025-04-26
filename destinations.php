@@ -9,7 +9,8 @@ $destinationImages = [
     'Boracay' => 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80', // White Beach 
     'Cebu' => 'https://images.unsplash.com/photo-1495162048225-6b3b37b8a69e?q=80&w=1933&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Cebu City
     'Palawan' => 'https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // El Nido Lagoon
-    'Siargao' => 'https://images.unsplash.com/photo-1565340076637-825894a74ca6?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' // Cloud 9 Wave
+    'Siargao' => 'https://images.unsplash.com/photo-1565340076637-825894a74ca6?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Cloud 9 Wave
+    'Cavite' => 'https://images.unsplash.com/photo-1679391890663-80f4daeb4041?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' // Cavite Updated Image
 ];
 
 
