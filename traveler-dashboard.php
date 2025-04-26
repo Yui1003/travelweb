@@ -114,16 +114,9 @@ include 'includes/header.php';
                 <!-- Sidebar -->
                 <div class="dashboard-card" data-aos="fade-right">
                     <div class="text-center mb-4">
-                        <div class="mb-3">
-                            <?php if (!empty($user['profile_img'])): ?>
-                                <img src="<?php echo $user['profile_img']; ?>" alt="<?php echo htmlspecialchars($user['full_name']); ?>" class="img-fluid rounded-circle" style="width: 120px; height: 120px; object-fit: cover;">
-                            <?php else: ?>
-                                <img src="https://www.gravatar.com/avatar/<?php echo md5(strtolower(trim($user['email']))); ?>?d=mp&s=200" alt="<?php echo htmlspecialchars($user['full_name']); ?>" class="img-fluid rounded-circle" style="width: 120px; height: 120px; object-fit: cover;">
-                            <?php endif; ?>
-                        </div>
                         <h3><?php echo htmlspecialchars($user['full_name']); ?></h3>
                         <p class="text-muted"><?php echo ucfirst($user['role']); ?></p>
-                    </div>
+                </div>
 
                     <ul class="nav flex-column dashboard-tabs nav-pills mb-4" id="dashboardTab" role="tablist">
                         <li class="nav-item" role="presentation">

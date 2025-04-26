@@ -1,4 +1,3 @@
-
 <?php
 require_once 'includes/auth.php';
 requireAdmin(); // This will ensure only admins can access this page
@@ -119,11 +118,10 @@ if (isset($_GET['mark_read']) && isset($_GET['message_id'])) {
                                         <td><?php echo formatCurrency($booking['total_price']); ?></td>
                                         <td>
                                             <span class="badge bg-<?php 
-                                                echo $booking['payment_status'] == 'paid' ? 'success' : 
-                                                    ($booking['payment_status'] == 'pending' ? 'warning' : 
-                                                    ($booking['payment_status'] == 'cancelled' ? 'danger' : 'info')); 
+                                                echo $booking['status'] == 'confirmed' ? 'success' : 
+                                                    ($booking['status'] == 'pending' ? 'warning' : 'danger'); 
                                             ?>">
-                                                <?php echo ucfirst($booking['payment_status']); ?>
+                                                <?php echo ucfirst($booking['status']); ?>
                                             </span>
                                         </td>
                                     </tr>

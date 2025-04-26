@@ -243,7 +243,7 @@ function generateConfirmationNumber() {
 function getUserBookings($conn, $userId) {
     $sql = "SELECT b.*, p.title as package_title, d.name as destination_name, 
             b.confirmation_number, b.travel_date, b.num_travelers, b.total_price, 
-            COALESCE(b.payment_status, b.status, 'pending') as status,
+            b.status,
             b.special_requests 
             FROM bookings b 
             LEFT JOIN packages p ON b.package_id = p.id 

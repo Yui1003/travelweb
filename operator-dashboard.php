@@ -166,11 +166,10 @@ $allDestinations = getAllDestinations($conn);
                                 <td><?php echo formatCurrency($booking['total_price']); ?></td>
                                 <td>
                                     <span class="badge bg-<?php 
-                                        echo $booking['payment_status'] == 'paid' ? 'success' : 
-                                            ($booking['payment_status'] == 'pending' ? 'warning' : 
-                                            ($booking['payment_status'] == 'cancelled' ? 'danger' : 'info')); 
+                                        echo $booking['status'] == 'confirmed' ? 'success' : 
+                                            ($booking['status'] == 'pending' ? 'warning' : 'danger'); 
                                     ?>">
-                                        <?php echo ucfirst($booking['payment_status']); ?>
+                                        <?php echo ucfirst($booking['status']); ?>
                                     </span>
                                 </td>
                             </tr>
@@ -365,7 +364,7 @@ function getOperatorBookings($conn, $operatorId) {
 function calculateTotalEarnings($bookings) {
     $total = 0;
     foreach ($bookings as $booking) {
-        if ($booking['payment_status'] == 'paid') {
+        if ($booking['status'] == 'confirmed') {
             $total += $booking['total_price'];
         }
     }
@@ -391,7 +390,7 @@ function calculatePackageEarnings($bookings) {
 
         $packageEarnings[$packageId]['bookings']++;
 
-        if ($status == 'paid') {
+        if ($status == 'confirmed') {
             $packageEarnings[$packageId]['earnings'] += $amount;
         }
     }

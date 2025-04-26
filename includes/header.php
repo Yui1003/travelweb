@@ -61,6 +61,19 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                 </ul>
                 <div class="d-flex align-items-center">
                     <?php if (isLoggedIn()): ?>
+                        <?php if (isAdmin()): ?>
+                            <a href="admin-dashboard.php" class="btn btn-outline-light me-2">
+                                <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+                            </a>
+                        <?php elseif (isOperator()): ?>
+                            <a href="operator-dashboard.php" class="btn btn-outline-light me-2">
+                                <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+                            </a>
+                        <?php else: ?>
+                            <a href="traveler-dashboard.php" class="btn btn-outline-light me-2">
+                                <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+                            </a>
+                        <?php endif; ?>
                         <div class="dropdown">
                             <button class="btn btn-outline-light dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-user-circle me-1"></i> <?php echo $_SESSION['full_name']; ?>

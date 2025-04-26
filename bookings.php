@@ -12,6 +12,22 @@ $sql = "SELECT b.*, u.full_name, p.title as package_title, p.price
         ORDER BY b.booking_date DESC";
 $result = $conn->query($sql);
 
+// Handle status update
+if (isset($_POST['update_status'])) {
+    $bookingId = (int)$_POST['booking_id'];
+    $newStatus = $_POST['status'];
+    $updateSql = "UPDATE bookings SET status = ? WHERE id = ?";
+    $stmt = $conn->prepare($updateSql);
+    $stmt->bind_param("si", $newStatus, $bookingId);
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    echo json_encode(['success' => false]);
+    exit;
+}
+
+
 // Handle booking deletion
 if (isset($_GET['delete_booking'])) {
     $bookingId = (int)$_GET['delete_booking'];
@@ -79,9 +95,14 @@ if (isset($_GET['delete_booking'])) {
                                     <a href="view-booking.php?id=<?php echo $booking['id']; ?>" class="btn btn-sm btn-info">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <button class="btn btn-sm btn-success update-status" data-id="<?php echo $booking['id']; ?>">
-                                        <i class="fas fa-check"></i>
-                                    </button>
+                                    <select class="form-select form-select-sm d-inline-block w-auto me-2 booking-status-select" 
+                                            data-booking-id="<?php echo $booking['id']; ?>"
+                                            data-current-status="<?php echo $booking['status']; ?>">
+                                        <option value="pending" <?php echo $booking['status'] == 'pending' ? 'selected' : ''; ?>>Pending</option>
+                                        <option value="cancelled" <?php echo $booking['status'] == 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
+                                        <option value="paid" <?php echo $booking['status'] == 'paid' ? 'selected' : ''; ?>>Paid</option>
+                                        <option value="confirmed" <?php echo $booking['status'] == 'confirmed' ? 'selected' : ''; ?>>Confirmed</option>
+                                    </select>
                                     <a href="bookings.php?delete_booking=<?php echo $booking['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this booking?')">
                                         <i class="fas fa-trash"></i>
                                     </a>
@@ -97,3 +118,40 @@ if (isset($_GET['delete_booking'])) {
 </section>
 
 <?php include 'includes/footer.php'; ?>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const statusSelects = document.querySelectorAll('.booking-status-select');
+    statusSelects.forEach(select => {
+        select.addEventListener('change', function() {
+            const bookingId = this.dataset.bookingId;
+            const newStatus = this.value;
+            const currentStatus = this.dataset.currentStatus;
+            
+            const confirmChange = confirm(`Are you sure you want to change the status from "${currentStatus}" to "${newStatus}"?`);
+            
+            if (confirmChange) {
+                fetch('bookings.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `update_status=1&booking_id=${bookingId}&status=${newStatus}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Failed to update status. Please try again.');
+                    }
+                });
+            } else {
+                // Reset the select to the previous value if user cancels
+                this.value = currentStatus;
+            }
+        });
+    });
+});
+</script>
