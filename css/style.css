@@ -1257,24 +1257,25 @@ main {
     font-weight: 500;
 }
 
-.booking-status.confirmed {
-    background-color: rgba(46, 204, 113, 0.1);
-    color: #2ecc71;
+.booking-status .badge {
+    font-size: 0.875rem;
+    padding: 0.5em 1em;
 }
 
-.booking-status.pending {
-    background-color: rgba(241, 196, 15, 0.1);
-    color: #f1c40f;
+.booking-status .bg-success {
+    background-color: #2ecc71 !important;
 }
 
-.booking-status.completed {
-    background-color: rgba(52, 152, 219, 0.1);
-    color: var(--primary-color);
+.booking-status .bg-primary {
+    background-color: #3498db !important;
 }
 
-.booking-status.cancelled {
-    background-color: rgba(231, 76, 60, 0.1);
-    color: #e74c3c;
+.booking-status .bg-warning {
+    background-color: #f1c40f !important;
+}
+
+.booking-status .bg-danger {
+    background-color: #e74c3c !important;
 }
 
 .booking-details {

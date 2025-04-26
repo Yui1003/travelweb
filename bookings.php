@@ -70,6 +70,9 @@ if (isset($_GET['delete_booking'])) {
                                 <th>Travel Date</th>
                                 <th>Travelers</th>
                                 <th>Total Amount</th>
+                                <th>Payment Method</th>
+                                <th>Reference #</th>
+                                <th>Receipt</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -83,6 +86,17 @@ if (isset($_GET['delete_booking'])) {
                                 <td><?php echo date('M d, Y', strtotime($booking['travel_date'])); ?></td>
                                 <td><?php echo $booking['num_travelers']; ?></td>
                                 <td><?php echo formatCurrency($booking['total_price']); ?></td>
+                                <td><?php echo htmlspecialchars($booking['payment_method'] ?? 'N/A'); ?></td>
+                                <td><?php echo htmlspecialchars($booking['reference_number'] ?? 'N/A'); ?></td>
+                                <td>
+                                    <?php if(!empty($booking['payment_proof'])): ?>
+                                        <a href="uploads/receipts/<?php echo basename($booking['payment_proof']); ?>" target="_blank" class="btn btn-sm btn-info">
+                                            <i class="fas fa-receipt"></i> View
+                                        </a>
+                                    <?php else: ?>
+                                        <span class="text-muted">No receipt</span>
+                                    <?php endif; ?>
+                                </td>
                                 <td>
                                     <span class="badge bg-<?php 
                                         echo $booking['status'] == 'confirmed' ? 'success' : 
@@ -91,21 +105,22 @@ if (isset($_GET['delete_booking'])) {
                                         <?php echo ucfirst($booking['status']); ?>
                                     </span>
                                 </td>
-                                <td>
-                                    <a href="view-booking.php?id=<?php echo $booking['id']; ?>" class="btn btn-sm btn-info">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <select class="form-select form-select-sm d-inline-block w-auto me-2 booking-status-select" 
-                                            data-booking-id="<?php echo $booking['id']; ?>"
-                                            data-current-status="<?php echo $booking['status']; ?>">
-                                        <option value="pending" <?php echo $booking['status'] == 'pending' ? 'selected' : ''; ?>>Pending</option>
-                                        <option value="cancelled" <?php echo $booking['status'] == 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
-                                        <option value="paid" <?php echo $booking['status'] == 'paid' ? 'selected' : ''; ?>>Paid</option>
-                                        <option value="confirmed" <?php echo $booking['status'] == 'confirmed' ? 'selected' : ''; ?>>Confirmed</option>
-                                    </select>
-                                    <a href="bookings.php?delete_booking=<?php echo $booking['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this booking?')">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
+                                <td class="text-nowrap">
+                                    <div class="btn-group">
+                                        <a href="view-booking.php?id=<?php echo $booking['id']; ?>" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <select class="form-select form-select-sm booking-status-select" style="width: auto; min-width: 100px;"
+                                                data-booking-id="<?php echo $booking['id']; ?>"
+                                                data-current-status="<?php echo $booking['status']; ?>">
+                                            <option value="pending" <?php echo $booking['status'] == 'pending' ? 'selected' : ''; ?>>Pending</option>
+                                            <option value="cancelled" <?php echo $booking['status'] == 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
+                                            <option value="confirmed" <?php echo $booking['status'] == 'confirmed' ? 'selected' : ''; ?>>Confirmed</option>
+                                        </select>
+                                        <a href="bookings.php?delete_booking=<?php echo $booking['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this booking?')">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                             <?php endwhile; ?>

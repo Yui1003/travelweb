@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 26, 2025 at 12:34 PM
+-- Generation Time: Apr 26, 2025 at 03:22 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -67,6 +67,9 @@ CREATE TABLE `bookings` (
   `status` enum('pending','confirmed','cancelled') DEFAULT 'pending',
   `confirmation_number` varchar(20) DEFAULT NULL,
   `special_requests` text DEFAULT NULL,
+  `payment_method` varchar(50) NOT NULL,
+  `payment_status` enum('pending','confirmed','cancelled') DEFAULT 'pending',
+  `reference_number` varchar(100) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -75,9 +78,9 @@ CREATE TABLE `bookings` (
 -- Dumping data for table `bookings`
 --
 
-INSERT INTO `bookings` (`id`, `user_id`, `package_id`, `booking_date`, `travel_date`, `num_travelers`, `total_price`, `status`, `confirmation_number`, `special_requests`, `created_at`, `updated_at`) VALUES
-(1, 1, 2, '2025-04-26', '2025-04-28', 1, 25000.00, 'pending', 'BK17456585172909', '', '2025-04-26 09:08:37', '2025-04-26 09:24:29'),
-(2, 3, 1, '2025-04-26', '2025-04-30', 1, 15000.00, 'pending', 'BK17456586548735', '', '2025-04-26 09:10:54', '2025-04-26 09:10:54');
+INSERT INTO `bookings` (`id`, `user_id`, `package_id`, `booking_date`, `travel_date`, `num_travelers`, `total_price`, `status`, `confirmation_number`, `special_requests`, `payment_method`, `payment_status`, `reference_number`, `created_at`, `updated_at`) VALUES
+(1, 1, 2, '2025-04-26', '2025-04-28', 1, 25000.00, 'confirmed', 'BK17456585172909', '', '', 'pending', NULL, '2025-04-26 09:08:37', '2025-04-26 13:08:17'),
+(5, 3, 4, '2025-04-26', '2025-04-28', 1, 8000.00, 'confirmed', 'BK17456720041461', '', '0', 'pending', NULL, '2025-04-26 12:53:24', '2025-04-26 13:21:43');
 
 -- --------------------------------------------------------
 
@@ -121,13 +124,28 @@ INSERT INTO `destinations` (`id`, `name`, `country`, `region`, `description`, `i
 CREATE TABLE `messages` (
   `id` int(11) NOT NULL,
   `user_id` int(11) DEFAULT NULL,
+  `to_user_id` int(11) DEFAULT NULL,
   `name` varchar(100) NOT NULL,
-  `email` varchar(100) NOT NULL,
+  `email` varchar(255) DEFAULT NULL,
   `subject` varchar(200) DEFAULT NULL,
   `message` text NOT NULL,
   `status` enum('unread','read','replied') DEFAULT 'unread',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `replied_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00'
+  `replied_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `message_replies`
+--
+
+CREATE TABLE `message_replies` (
+  `id` int(11) NOT NULL,
+  `message_id` int(11) NOT NULL,
+  `admin_id` int(11) NOT NULL,
+  `reply` text NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -166,6 +184,22 @@ INSERT INTO `packages` (`id`, `destination_id`, `title`, `description`, `price`,
 (3, 3, 'Cebu Island Adventure', 'Explore the rich culture and beautiful beaches of Cebu.', 8000.00, 5, 10, 'Day 1: Arrival\r\nDay 2: Island Hopping \r\nDay 3: City Tour\r\nDay 4: Waterfall Tour\r\nDay 5: Departure', 'Accommodations\r\nBreakfast\r\nSightseeing', 'Airfare', 1, 0, 2, 'https://images.unsplash.com/photo-1548780772-e21fa3f2cfd7?q=80&amp;w=1932&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', '2025-04-26 09:08:14', '2025-04-26 10:27:14', 'active'),
 (4, 4, 'Bohol and Chocolate Hills Tour', 'Discover Bohol and its famous Chocolate Hills.', 8000.00, 3, 10, 'Day 1: Arrival and Tour\r\nDay 2: Adventure Activities\r\nDay 3: Departure', 'Accommodations\r\nBreakfast', 'Meal', 1, 0, 2, 'https://images.unsplash.com/photo-1581521801296-5bdb5065472f?q=80&amp;w=1934&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', '2025-04-26 09:08:14', '2025-04-26 10:24:36', 'active'),
 (5, 5, 'Siargao Surfing Package', 'Surf the best waves in Siargao.', 18000.00, 4, 10, 'Day 1: Arrival, \r\nDay 2: Surf lessons, \r\nDay 3: Island hopping, \r\nDay 4: Departure', 'Accommodation,\r\nSurfboard rental', 'Meals', 1, 0, 2, 'https://gttp.images.tshiftcdn.com/316099/x/0/surigao-del-norte-siargao-guyam-island-shutterstock-1177486879-min.jpg?w=380&amp;h=411&amp;fit=crop&amp;crop=center&amp;auto=compress&amp;q=62&amp;dpr=2&amp;fm=pjpg&amp;ixlib=react-9.8.1', '2025-04-26 09:08:14', '2025-04-26 10:13:42', 'active');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `payments`
+--
+
+CREATE TABLE `payments` (
+  `id` int(11) NOT NULL,
+  `booking_id` int(11) NOT NULL,
+  `payment_method` varchar(50) NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `reference_number` varchar(100) DEFAULT NULL,
+  `payment_status` varchar(20) DEFAULT 'pending',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -233,7 +267,8 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`id`, `role_id`, `full_name`, `username`, `email`, `password`, `phone`, `address`, `profile_img`, `created_at`, `updated_at`, `status`) VALUES
 (1, 1, 'Admin User', 'admin', 'admin@wanderlust.com', '$2y$10$Jrjwyrxcn621teAORnZdCeAa/oXK/ez70XSeoA7ngFy5IxAGKFwKG', '+639123456789', NULL, 'default-user.jpg', '2025-04-26 09:08:14', '2025-04-26 09:08:14', 'active'),
 (2, 2, 'Tour Operator', 'operator', 'operator@wanderlust.com', '$2y$10$UxIMrOjCLaBc1UJ6/5uRCuIfnNtuEkD4prnBKHkKKYMZlW5YumPmC', '+639123456790', NULL, 'default-user.jpg', '2025-04-26 09:08:14', '2025-04-26 09:08:14', 'active'),
-(3, 3, 'Maurice Montano', 'user1', 'gawagawa1@gmail.com', '$2y$10$Qhd6Ovuq6kZ3sxCTGh8.aeVoi.VOh0WulVI9tP.aCj3Lm71P5ieAW', '09999999999', '', 'default-user.jpg', '2025-04-26 09:10:42', '2025-04-26 09:10:42', 'active');
+(3, 3, 'Maurice Montano', 'user1', 'gawagawa1@gmail.com', '$2y$10$Qhd6Ovuq6kZ3sxCTGh8.aeVoi.VOh0WulVI9tP.aCj3Lm71P5ieAW', '09999999999', '', 'default-user.jpg', '2025-04-26 09:10:42', '2025-04-26 09:10:42', 'active'),
+(4, 3, 'Jom', 'user2', 'admin1@lakwartsero.com', '$2y$10$rdm5E1wH4TkjehTABqeoL.Qyw12p8mo9L.OPz3WZ8/h/ESz/09U9e', '09999999998', '', 'default-user.jpg', '2025-04-26 12:34:19', '2025-04-26 12:34:19', 'active');
 
 --
 -- Indexes for dumped tables
@@ -266,7 +301,16 @@ ALTER TABLE `destinations`
 --
 ALTER TABLE `messages`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`);
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `fk_messages_to_user` (`to_user_id`);
+
+--
+-- Indexes for table `message_replies`
+--
+ALTER TABLE `message_replies`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `message_id` (`message_id`),
+  ADD KEY `admin_id` (`admin_id`);
 
 --
 -- Indexes for table `packages`
@@ -275,6 +319,13 @@ ALTER TABLE `packages`
   ADD PRIMARY KEY (`id`),
   ADD KEY `destination_id` (`destination_id`),
   ADD KEY `created_by` (`created_by`);
+
+--
+-- Indexes for table `payments`
+--
+ALTER TABLE `payments`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `booking_id` (`booking_id`);
 
 --
 -- Indexes for table `reviews`
@@ -314,7 +365,7 @@ ALTER TABLE `attractions`
 -- AUTO_INCREMENT for table `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `destinations`
@@ -326,6 +377,12 @@ ALTER TABLE `destinations`
 -- AUTO_INCREMENT for table `messages`
 --
 ALTER TABLE `messages`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `message_replies`
+--
+ALTER TABLE `message_replies`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -333,6 +390,12 @@ ALTER TABLE `messages`
 --
 ALTER TABLE `packages`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `payments`
+--
+ALTER TABLE `payments`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `reviews`
@@ -350,7 +413,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Constraints for dumped tables
@@ -373,7 +436,15 @@ ALTER TABLE `bookings`
 -- Constraints for table `messages`
 --
 ALTER TABLE `messages`
+  ADD CONSTRAINT `fk_messages_to_user` FOREIGN KEY (`to_user_id`) REFERENCES `users` (`id`),
   ADD CONSTRAINT `messages_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+
+--
+-- Constraints for table `message_replies`
+--
+ALTER TABLE `message_replies`
+  ADD CONSTRAINT `message_replies_ibfk_1` FOREIGN KEY (`message_id`) REFERENCES `messages` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `message_replies_ibfk_2` FOREIGN KEY (`admin_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `packages`
@@ -381,6 +452,12 @@ ALTER TABLE `messages`
 ALTER TABLE `packages`
   ADD CONSTRAINT `packages_ibfk_1` FOREIGN KEY (`destination_id`) REFERENCES `destinations` (`id`),
   ADD CONSTRAINT `packages_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`);
+
+--
+-- Constraints for table `payments`
+--
+ALTER TABLE `payments`
+  ADD CONSTRAINT `payments_ibfk_1` FOREIGN KEY (`booking_id`) REFERENCES `bookings` (`id`);
 
 --
 -- Constraints for table `reviews`

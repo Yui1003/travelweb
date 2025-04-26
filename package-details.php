@@ -39,28 +39,55 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['booking_submit'])) {
         header("Location: login.php?redirect=" . urlencode($_SERVER['REQUEST_URI']));
         exit;
     }
-    
+
     // Get form data
     $userId = $_SESSION['user_id'];
     $travelDate = sanitizeInput($_POST['travel_date']);
     $numTravelers = (int)$_POST['num_travelers'];
     $specialRequests = sanitizeInput($_POST['special_requests']);
+    $paymentMethod = sanitizeInput($_POST['payment_method']); // Added payment method
     $totalPrice = $package['price'] * $numTravelers;
-    
+
     // Generate confirmation number
     $confirmationNumber = generateConfirmationNumber();
-    
-    // Insert booking
-    $sql = "INSERT INTO bookings (user_id, package_id, booking_date, travel_date, num_travelers, total_price, confirmation_number, special_requests) 
-            VALUES (?, ?, CURDATE(), ?, ?, ?, ?, ?)";
+
+    // Insert booking with payment details
+    $sql = "INSERT INTO bookings (user_id, package_id, booking_date, travel_date, num_travelers, total_price, confirmation_number, special_requests, payment_method, reference_number) 
+            VALUES (?, ?, CURDATE(), ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("iisiiss", $userId, $packageId, $travelDate, $numTravelers, $totalPrice, $confirmationNumber, $specialRequests);
+    $referenceNumber = 'REF' . date('Ymd') . rand(1000, 9999);
+    $stmt->bind_param("iisiissss", $userId, $packageId, $travelDate, $numTravelers, $totalPrice, $confirmationNumber, $specialRequests, $paymentMethod, $referenceNumber);
+
+    // Handle file upload
+$payment_proof = '';
+if (isset($_FILES['proofOfPayment']) && $_FILES['proofOfPayment']['error'] == 0) {
+    $upload_dir = 'uploads/receipts/';
+    if (!file_exists($upload_dir)) {
+        mkdir($upload_dir, 0777, true);
+    }
     
-    if ($stmt->execute()) {
+    $file_extension = pathinfo($_FILES['proofOfPayment']['name'], PATHINFO_EXTENSION);
+    $file_name = uniqid('receipt_') . '.' . $file_extension;
+    $file_path = $upload_dir . $file_name;
+    
+    if (move_uploaded_file($_FILES['proofOfPayment']['tmp_name'], $file_path)) {
+        $payment_proof = $file_path;
+    }
+}
+
+// Update SQL query to include payment_proof
+$sql = "INSERT INTO bookings (user_id, package_id, travel_date, num_travelers, total_price, 
+        special_requests, confirmation_number, payment_method, reference_number, payment_proof, status) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("iisidsssss", $userId, $packageId, $travelDate, $numTravelers, $totalPrice, 
+                  $specialRequests, $confirmationNumber, $paymentMethod, $referenceNumber, $payment_proof);
+
+if ($stmt->execute()) {
         $bookingMessage = '<div class="alert alert-success">
             <h4><i class="fas fa-check-circle"></i> Booking Successful!</h4>
             <p>Your booking has been confirmed. Confirmation number: <strong>' . $confirmationNumber . '</strong></p>
-            <p>You will receive a confirmation email shortly. View your booking details in your <a href="traveler-dashboard.php" class="alert-link">dashboard</a>.</p>
+            <p>Payment Method: ' . $paymentMethod . '</p> <p>You will receive a confirmation email shortly. View your booking details in your <a href="traveler-dashboard.php" class="alert-link">dashboard</a>.</p>
         </div>';
     } else {
         $bookingMessage = '<div class="alert alert-danger">
@@ -100,13 +127,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['booking_submit'])) {
 <section class="package-detail">
     <div class="container">
         <?php echo $bookingMessage; ?>
-        
+
         <div class="row">
             <div class="col-lg-8">
                 <div class="package-overview" data-aos="fade-up">
                     <h2>Overview</h2>
                     <p><?php echo $package['description']; ?></p>
-                    
+
                     <div class="package-meta-large">
                         <div class="package-meta-item">
                             <i class="fas fa-clock"></i>
@@ -124,12 +151,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['booking_submit'])) {
                         <?php endif; ?>
                     </div>
                 </div>
-                
+
                 <div class="package-section" data-aos="fade-up">
                     <h2><i class="fas fa-route"></i> Itinerary</h2>
                     <?php echo formatItinerary($package['itinerary']); ?>
                 </div>
-                
+
                 <div class="package-section" data-aos="fade-up">
                     <div class="row">
                         <div class="col-md-6">
@@ -142,11 +169,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['booking_submit'])) {
                         </div>
                     </div>
                 </div>
-                
+
                 <?php if (count($reviews) > 0): ?>
                 <div class="package-section" data-aos="fade-up">
                     <h2><i class="fas fa-star"></i> Reviews</h2>
-                    
+
                     <?php foreach($reviews as $review): ?>
                     <div class="review-item">
                         <div class="review-header">
@@ -173,7 +200,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['booking_submit'])) {
                 </div>
                 <?php endif; ?>
             </div>
-            
+
             <div class="col-lg-4">
                 <div class="package-sidebar">
                     <div class="package-sidebar-header">
@@ -183,13 +210,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['booking_submit'])) {
                         <div class="package-price-large">
                             <?php echo formatCurrency($package['price']); ?> <span>/ per person</span>
                         </div>
-                        
+
                         <form method="post" action="package-details.php?id=<?php echo $packageId; ?>" id="bookingForm">
                             <div class="mb-3">
                                 <label for="travelDate" class="form-label">Travel Date</label>
                                 <input type="date" class="form-control" id="travelDate" name="travel_date" required>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label for="numTravelers" class="form-label">Number of Travelers</label>
                                 <select class="form-select" id="numTravelers" name="num_travelers" required>
@@ -198,12 +225,62 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['booking_submit'])) {
                                     <?php endfor; ?>
                                 </select>
                             </div>
-                            
+
+                            <div class="mb-3">
+                                <label for="payment_method" class="form-label">Payment Method</label>
+                                <select class="form-select" id="paymentMethod" name="payment_method" required>
+                                    <option value="">Select Payment Method</option>
+                                    <option value="gcash">GCash</option>
+                                    <option value="bank_transfer">Bank Transfer</option>
+                                </select>
+                            </div>
+
+                            <div id="gcashDetails" style="display:none;" class="mb-3 payment-instructions">
+                                <div class="alert alert-info">
+                                    <h5><i class="fas fa-info-circle"></i> GCash Payment Instructions:</h5>
+                                    <ol>
+                                        <li>Send payment to GCash number: <strong>09997914791</strong></li>
+                                        <li>Amount to send: <span class="payment-amount">PHP 0.00</span></li>
+                                        <li>Save your reference number from GCash</li>
+                                        <li>Enter the reference number below</li>
+                                    </ol>
+                                </div>
+                                <label for="gcashRefNumber" class="form-label">GCash Reference Number *</label>
+                                <input type="text" class="form-control" id="gcashRefNumber" name="reference_number" pattern="[0-9]{13}" maxlength="13" required>
+                                <div class="form-text">Enter the 13-digit reference number from your GCash transaction</div>
+                            </div>
+
+                            <div id="bankDetails" style="display:none;" class="mb-3 payment-instructions">
+                                <div class="alert alert-info">
+                                    <h5><i class="fas fa-info-circle"></i> Bank Transfer Instructions:</h5>
+                                    <ol>
+                                        <li>Transfer to:
+                                            <ul>
+                                                <li>Bank: BDO</li>
+                                                <li>Account Name: Lakwartsero</li>
+                                                <li>Account Number: 1234567890</li>
+                                            </ul>
+                                        </li>
+                                        <li>Amount to transfer: <span class="payment-amount">PHP 0.00</span></li>
+                                        <li>Save your reference/tracking number</li>
+                                        <li>Upload proof of payment and enter reference number below</li>
+                                    </ol>
+                                </div>
+                                <label for="bankRefNumber" class="form-label">Bank Reference Number *</label>
+                                <input type="text" class="form-control" id="bankRefNumber" name="reference_number" pattern="[A-Za-z0-9]{10,}" required>
+                                <div class="form-text">Enter the reference/tracking number from your bank transfer</div>
+                                
+                                <label for="proofOfPayment" class="form-label mt-3">Proof of Payment *</label>
+                                <input type="file" class="form-control" id="proofOfPayment" name="proof_of_payment" accept="image/*" required>
+                                <div class="form-text">Upload a screenshot or photo of your payment confirmation</div>
+                            </div>
+
+
                             <div class="mb-3">
                                 <label for="specialRequests" class="form-label">Special Requests (Optional)</label>
                                 <textarea class="form-control" id="specialRequests" name="special_requests" rows="3"></textarea>
                             </div>
-                            
+
                             <div class="price-calculation mb-3">
                                 <div class="d-flex justify-content-between">
                                     <span>Price per person:</span>
@@ -215,7 +292,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['booking_submit'])) {
                                 </div>
                                 <input type="hidden" name="total_price_input" id="totalPriceInput" value="<?php echo $package['price']; ?>">
                             </div>
-                            
+
                             <?php if (isLoggedIn()): ?>
                             <div class="d-grid">
                                 <button type="submit" name="booking_submit" class="btn btn-primary">Book Now</button>
@@ -229,7 +306,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['booking_submit'])) {
                         </form>
                     </div>
                 </div>
-                
+
                 <div class="package-sidebar mt-4">
                     <div class="package-sidebar-header">
                         <h3>Need Help?</h3>
@@ -254,3 +331,85 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['booking_submit'])) {
 // Include footer
 include 'includes/footer.php';
 ?>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const paymentMethodSelect = document.getElementById('paymentMethod');
+    const gcashDetails = document.getElementById('gcashDetails');
+    const bankDetails = document.getElementById('bankDetails');
+
+    paymentMethodSelect.addEventListener('change', function() {
+        // Hide all payment details first
+        gcashDetails.style.display = 'none';
+        bankDetails.style.display = 'none';
+        
+        // Reset form validation
+        const allInputs = document.querySelectorAll('#gcashDetails input, #bankDetails input');
+        allInputs.forEach(input => {
+            input.removeAttribute('required');
+        });
+
+        // Show selected payment method details
+        if (this.value === 'gcash') {
+            gcashDetails.style.display = 'block';
+            document.querySelector('#gcashDetails input[name="reference_number"]').setAttribute('required', 'required');
+        } else if (this.value === 'bank_transfer') {
+            bankDetails.style.display = 'block';
+            document.querySelector('#bankDetails input[name="reference_number"]').setAttribute('required', 'required');
+            document.querySelector('#bankDetails input[name="proof_of_payment"]').setAttribute('required', 'required');
+        }
+        
+        // Update payment amounts in instructions
+        const paymentAmounts = document.querySelectorAll('.payment-amount');
+        const totalAmount = document.getElementById('totalPrice').textContent;
+        paymentAmounts.forEach(element => {
+            element.textContent = totalAmount;
+        });
+    });
+
+    // Validate reference numbers
+    document.getElementById('bookingForm').addEventListener('submit', function(e) {
+        const paymentMethod = document.getElementById('paymentMethod').value;
+        let refNumber;
+        
+        if (paymentMethod === 'gcash') {
+            refNumber = document.getElementById('gcashRefNumber').value;
+            if (!/^[0-9]{13}$/.test(refNumber)) {
+                e.preventDefault();
+                alert('Please enter a valid 13-digit GCash reference number');
+                return;
+            }
+        } else if (paymentMethod === 'bank_transfer') {
+            refNumber = document.getElementById('bankRefNumber').value;
+            if (refNumber.length < 10) {
+                e.preventDefault();
+                alert('Please enter a valid bank reference number (minimum 10 characters)');
+                return;
+            }
+            
+            const proofFile = document.getElementById('proofOfPayment').files[0];
+            if (!proofFile) {
+                e.preventDefault();
+                alert('Please upload proof of payment');
+                return;
+            }
+        }
+    });
+
+    const numTravelersSelect = document.getElementById('numTravelers');
+    const pricePerPerson = document.getElementById('pricePerPerson');
+    const totalPrice = document.getElementById('totalPrice');
+    const totalPriceInput = document.getElementById('totalPriceInput');
+
+    numTravelersSelect.addEventListener('change', function() {
+        const price = parseFloat(pricePerPerson.dataset.price);
+        const numTravelers = parseInt(this.value);
+        const total = price * numTravelers;
+        totalPrice.textContent = formatCurrency(total);
+        totalPriceInput.value = total;
+    });
+
+    function formatCurrency(amount) {
+        return amount.toLocaleString('en-US', { style: 'currency', currency: 'PHP' });
+    }
+});
+</script>

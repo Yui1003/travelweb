@@ -1,4 +1,3 @@
-
 <?php
 require_once 'includes/auth.php';
 requireAdmin();
@@ -8,13 +7,13 @@ include 'includes/header.php';
 if (isset($_GET['id'])) {
     $bookingId = (int)$_GET['id'];
     $sql = "SELECT b.*, u.full_name, u.email, u.phone, p.title as package_title, 
-            d.name as destination_name 
+            d.name as destination_name, b.payment_method, b.reference_number, b.payment_proof
             FROM bookings b 
             JOIN users u ON b.user_id = u.id 
             JOIN packages p ON b.package_id = p.id 
             JOIN destinations d ON p.destination_id = d.id 
             WHERE b.id = ?";
-            
+
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $bookingId);
     $stmt->execute();
@@ -66,6 +65,14 @@ if (isset($_GET['id'])) {
                         </p>
                     </div>
                 </div>
+                <div class="col-md-6">
+                            <h4>Payment Information</h4>
+                            <p><strong>Payment Method:</strong> <?php echo htmlspecialchars($booking['payment_method'] ?? 'N/A'); ?></p>
+                            <p><strong>Reference Number:</strong> <?php echo htmlspecialchars($booking['reference_number'] ?? 'N/A'); ?></p>
+                            <?php if(!empty($booking['payment_proof'])): ?>
+                            <p><strong>Payment Proof:</strong> <a href="<?php echo htmlspecialchars($booking['payment_proof']); ?>" target="_blank">View Receipt</a></p>
+                            <?php endif; ?>
+                        </div>
                 <?php if (!empty($booking['special_requests'])): ?>
                 <div class="mt-4">
                     <h4>Special Requests</h4>
