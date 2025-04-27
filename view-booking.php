@@ -68,7 +68,6 @@ if (isset($_GET['id'])) {
                 <div class="col-md-6">
                             <h4>Payment Information</h4>
                             <p><strong>Payment Method:</strong> <?php echo htmlspecialchars($booking['payment_method'] ?? 'N/A'); ?></p>
-                            <p><strong>Reference Number:</strong> <?php echo htmlspecialchars($booking['reference_number'] ?? 'N/A'); ?></p>
                             <?php if(!empty($booking['payment_proof'])): ?>
                             <p><strong>Payment Proof:</strong> <a href="<?php echo htmlspecialchars($booking['payment_proof']); ?>" target="_blank">View Receipt</a></p>
                             <?php endif; ?>

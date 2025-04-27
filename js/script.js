@@ -16,6 +16,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const travelDateInput = document.getElementById('travelDate');
         const pricePerPersonEl = document.getElementById('pricePerPerson');
         const totalPriceEl = document.getElementById('totalPrice');
+        const paymentMethodSelect = document.getElementById('paymentMethod');
+        const gcashAmount = document.querySelector('.payment-instructions .payment-amount');
+        const bankAmount = document.querySelector('.payment-instructions .payment-amount');
         
         // Set minimum date for travel date input
         const today = new Date();

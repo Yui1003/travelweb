@@ -71,7 +71,6 @@ if (isset($_GET['delete_booking'])) {
                                 <th>Travelers</th>
                                 <th>Total Amount</th>
                                 <th>Payment Method</th>
-                                <th>Reference #</th>
                                 <th>Receipt</th>
                                 <th>Status</th>
                                 <th>Actions</th>
@@ -87,7 +86,6 @@ if (isset($_GET['delete_booking'])) {
                                 <td><?php echo $booking['num_travelers']; ?></td>
                                 <td><?php echo formatCurrency($booking['total_price']); ?></td>
                                 <td><?php echo htmlspecialchars($booking['payment_method'] ?? 'N/A'); ?></td>
-                                <td><?php echo htmlspecialchars($booking['reference_number'] ?? 'N/A'); ?></td>
                                 <td>
                                     <?php if(!empty($booking['payment_proof'])): ?>
                                         <a href="uploads/receipts/<?php echo basename($booking['payment_proof']); ?>" target="_blank" class="btn btn-sm btn-info">

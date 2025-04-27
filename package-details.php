@@ -52,23 +52,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['booking_submit'])) {
     $confirmationNumber = generateConfirmationNumber();
 
     // Insert booking with payment details
-    $sql = "INSERT INTO bookings (user_id, package_id, booking_date, travel_date, num_travelers, total_price, confirmation_number, special_requests, payment_method, reference_number) 
-            VALUES (?, ?, CURDATE(), ?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO bookings (user_id, package_id, booking_date, travel_date, num_travelers, total_price, confirmation_number, special_requests, payment_method, status) 
+            VALUES (?, ?, CURDATE(), ?, ?, ?, ?, ?, ?, 'pending')";
     $stmt = $conn->prepare($sql);
-    $referenceNumber = 'REF' . date('Ymd') . rand(1000, 9999);
-    $stmt->bind_param("iisiissss", $userId, $packageId, $travelDate, $numTravelers, $totalPrice, $confirmationNumber, $specialRequests, $paymentMethod, $referenceNumber);
+    $stmt->bind_param("iisiisss", $userId, $packageId, $travelDate, $numTravelers, $totalPrice, $confirmationNumber, $specialRequests, $paymentMethod);
 
+    // Execute the statement
     if ($stmt->execute()) {
         $bookingId = $stmt->insert_id; // Get the last inserted booking ID
 
         // Handle file upload based on payment method
         $payment_proof = '';
-        if ($paymentMethod === 'gcash' && isset($_FILES['gcashProofOfPayment']) && $_FILES['gcashProofOfPayment']['error'] == 0) {
-            $upload_dir = 'uploads/receipts/';
-            if (!file_exists($upload_dir)) {
-                mkdir($upload_dir, 0777, true);
-            }
+        $upload_dir = 'uploads/receipts/';
+        if (!file_exists($upload_dir)) {
+            mkdir($upload_dir, 0777, true);
+        }
 
+        // Handle GCash payment proof upload
+        if ($paymentMethod === 'gcash' && isset($_FILES['gcashProofOfPayment']) && $_FILES['gcashProofOfPayment']['error'] == 0) {
             $file_extension = pathinfo($_FILES['gcashProofOfPayment']['name'], PATHINFO_EXTENSION);
             $file_name = 'gcash_receipt_' . uniqid() . '.' . $file_extension;
             $file_path = $upload_dir . $file_name;
@@ -78,12 +79,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['booking_submit'])) {
             } else {
                 $bookingMessage = '<div class="alert alert-danger">GCash proof of payment upload failed.</div>';
             }
-        } elseif ($paymentMethod === 'bank_transfer' && isset($_FILES['bankProofOfPayment']) && $_FILES['bankProofOfPayment']['error'] == 0) {
-            $upload_dir = 'uploads/receipts/';
-            if (!file_exists($upload_dir)) {
-                mkdir($upload_dir, 0777, true);
-            }
+        }
 
+        // Handle Bank Transfer payment proof upload
+        if ($paymentMethod === 'bank_transfer' && isset($_FILES['bankProofOfPayment']) && $_FILES['bankProofOfPayment']['error'] == 0) {
             $file_extension = pathinfo($_FILES['bankProofOfPayment']['name'], PATHINFO_EXTENSION);
             $file_name = 'bank_receipt_' . uniqid() . '.' . $file_extension;
             $file_path = $upload_dir . $file_name;
@@ -106,7 +105,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['booking_submit'])) {
         // Set success message
         $bookingMessage = '<div class="alert alert-success">Booking Successful!</div>';
     } else {
-        $bookingMessage = '<div class="alert alert-danger">Booking Failed.</div>';
+        // Log the error for debugging
+        error_log("Booking failed: " . $stmt->error);
+        $bookingMessage = '<div class="alert alert-danger">Booking Failed. Please try again.</div>';
     }
 }
 ?>
@@ -252,15 +253,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['booking_submit'])) {
                                     <ol>
                                         <li>Send payment to GCash number: <strong>09997914791</strong></li>
                                         <li>Amount to send: <span class="payment-amount">PHP 0.00</span></li>
-                                        <li>Save your reference number from GCash</li>
-                                        <li>Enter the reference number below</li>
+                                        <li>Take a screenshot of your payment confirmation</li>
                                     </ol>
                                 </div>
-                                <label for="gcashRefNumber" class="form-label">GCash Reference Number *</label>
-                                <input type="text" class="form-control" id="gcashRefNumber" name="reference_number" pattern="[0-9]{12,14}" maxlength="14" required>
-                                <div class="form-text">Enter the reference number from your GCash transaction</div>
 
-                                <label for="gcashProofOfPayment" class="form-label mt-3">Proof of Payment *</label>
+                                <label for="gcashProofOfPayment" class="form-label">Proof of Payment *</label>
                                 <input type="file" class="form-control" id="gcashProofOfPayment" name="gcashProofOfPayment" accept="image/*,.pdf" required>
                                 <div class="form-text">Upload a screenshot or photo of your payment confirmation</div>
                             </div>
@@ -277,15 +274,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['booking_submit'])) {
                                             </ul>
                                         </li>
                                         <li>Amount to transfer: <span class="payment-amount">PHP 0.00</span></li>
-                                        <li>Save your reference/tracking number</li>
-                                        <li>Upload proof of payment and enter reference number below</li>
+                                        <li>Take a screenshot of your payment confirmation</li>
                                     </ol>
                                 </div>
-                                <label for="bankRefNumber" class="form-label">Bank Reference Number *</label>
-                                <input type="text" class="form-control" id="bankRefNumber" name="reference_number" pattern="[A-Za-z0-9]{10,}" required>
-                                <div class="form-text">Enter the reference/tracking number from your bank transfer</div>
 
-                                <label for="bankProofOfPayment" class="form-label mt-3">Proof of Payment *</label>
+                                <label for="bankProofOfPayment" class="form-label">Proof of Payment *</label>
                                 <input type="file" class="form-control" id="bankProofOfPayment" name="bankProofOfPayment" accept="image/*" required>
                                 <div class="form-text">Upload a screenshot or photo of your payment confirmation</div>
                             </div>
@@ -306,6 +299,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['booking_submit'])) {
                                 </div>
                                 <input type="hidden" name="total_price_input" id="totalPriceInput" value="<?php echo $package['price']; ?>">
                             </div>
+
+                            <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                const numTravelersSelect = document.getElementById('numTravelers');
+                                const pricePerPerson = parseFloat(document.getElementById('pricePerPerson').dataset.price);
+                                const totalPriceDisplay = document.getElementById('totalPrice');
+                                const totalPriceInput = document.getElementById('totalPriceInput');
+                                const gcashAmount = document.querySelector('.payment-amount');
+                                const bankAmount = document.querySelector('.payment-amount');
+                                
+                                function updatePrice() {
+                                    const numTravelers = parseInt(numTravelersSelect.value);
+                                    const totalPrice = pricePerPerson * numTravelers;
+                                    totalPriceDisplay.textContent = '₱' + totalPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                                    totalPriceInput.value = totalPrice;
+                                    if(gcashAmount) gcashAmount.textContent = 'PHP ' + totalPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                                    if(bankAmount) bankAmount.textContent = 'PHP ' + totalPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                                }
+                                
+                                numTravelersSelect.addEventListener('change', updatePrice);
+                                updatePrice(); // Initialize price on load
+                            });
+                            </script>
 
                             <?php if (isLoggedIn()): ?>
                             <div class="d-grid">
@@ -347,18 +363,38 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['booking_submit'])) {
         const paymentMethodSelect = document.getElementById('paymentMethod');
         const gcashDetails = document.getElementById('gcashDetails');
         const bankDetails = document.getElementById('bankDetails');
+        const numTravelersSelect = document.getElementById('numTravelers');
+        const pricePerPerson = parseFloat(document.getElementById('pricePerPerson').dataset.price);
+        const form = document.getElementById('bookingForm');
+        
+        function updateAmounts() {
+            const numTravelers = parseInt(numTravelersSelect.value);
+            const totalAmount = pricePerPerson * numTravelers;
+            const formattedAmount = 'PHP ' + totalAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            
+            document.querySelectorAll('.payment-amount').forEach(el => {
+                el.textContent = formattedAmount;
+            });
+        }
 
         paymentMethodSelect.addEventListener('change', function() {
             if (this.value === 'gcash') {
                 gcashDetails.style.display = 'block';
                 bankDetails.style.display = 'none';
+                document.getElementById('gcashProofOfPayment').required = true;
+                document.getElementById('bankProofOfPayment').required = false;
             } else if (this.value === 'bank_transfer') {
                 bankDetails.style.display = 'block';
                 gcashDetails.style.display = 'none';
+                document.getElementById('bankProofOfPayment').required = true;
+                document.getElementById('gcashProofOfPayment').required = false;
             } else {
                 gcashDetails.style.display = 'none';
                 bankDetails.style.display = 'none';
             }
         });
+
+        numTravelersSelect.addEventListener('change', updateAmounts);
+        updateAmounts(); // Initial update
     });
 </script>
