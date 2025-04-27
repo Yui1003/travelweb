@@ -330,9 +330,13 @@ if (isset($_GET['mark_read']) && isset($_GET['message_id'])) {
                                         <td><?php echo htmlspecialchars($package['destination_name']); ?></td>
                                         <td><?php echo formatCurrency($package['price']); ?></td>
                                         <td>
-                                            <span class="badge bg-<?php echo $package['status'] == 'active' ? 'success' : 'warning'; ?>">
-                                                <?php echo ucfirst($package['status']); ?>
-                                            </span>
+                                            <select class="form-select form-select-sm package-status-select" 
+                                                    data-package-id="<?php echo $package['id']; ?>"
+                                                    style="width: auto; display: inline-block;">
+                                                <option value="active" <?php echo $package['status'] == 'active' ? 'selected' : ''; ?>>Active</option>
+                                                <option value="inactive" <?php echo $package['status'] == 'inactive' ? 'selected' : ''; ?>>Inactive</option>
+                                                <option value="sold-out" <?php echo $package['status'] == 'sold-out' ? 'selected' : ''; ?>>Sold Out</option>
+                                            </select>
                                         </td>
                                         <td>
                                             <a href="edit-package.php?id=<?php echo $package['id']; ?>" class="btn btn-sm btn-primary">

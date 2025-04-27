@@ -324,9 +324,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['booking_submit'])) {
                             </script>
 
                             <?php if (isLoggedIn()): ?>
-                            <div class="d-grid">
-                                <button type="submit" name="booking_submit" class="btn btn-primary">Book Now</button>
-                            </div>
+                                <?php if ($package['status'] === 'active'): ?>
+                                <div class="d-grid">
+                                    <button type="submit" name="booking_submit" class="btn btn-primary">Book Now</button>
+                                </div>
+                                <?php else: ?>
+                                <div class="alert alert-warning">
+                                    This package is currently <?php echo $package['status'] === 'sold-out' ? 'sold out' : 'not available for booking'; ?>.
+                                </div>
+                                <?php endif; ?>
                             <?php else: ?>
                             <div class="login-prompt">
                                 <p>Please <a href="login.php?redirect=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>">login</a> to book this package.</p>

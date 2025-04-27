@@ -1,43 +1,53 @@
 <?php
 require_once 'includes/auth.php';
-requireAdmin(); // Ensure only admins can access this page
+requireAdmin();
 include 'includes/header.php';
 
-// Include the database connection file
-require_once 'includes/db_connect.php'; // Ensure this line is added to establish a database connection
+// Get selected role filter
+$roleFilter = isset($_GET['role']) ? $_GET['role'] : '';
 
-// Assuming user_id is being passed from the URL
+// Get all users with role filter if set
+$sql = "SELECT u.*, r.name AS role FROM users u JOIN roles r ON u.role_id = r.id";
+if (!empty($roleFilter)) {
+    $sql .= " WHERE r.name = ?";
+}
+$sql .= " ORDER BY u.created_at DESC";
+
+if (!empty($roleFilter)) {
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $roleFilter);
+    $stmt->execute();
+    $result = $stmt->get_result();
+} else {
+    $result = $conn->query($sql);
+}
+
+// Handle user deletion
 if (isset($_GET['delete_user_id'])) {
     $userId = (int)$_GET['delete_user_id'];
 
-    // Check for associated bookings
-    $bookingCheckSql = "SELECT COUNT(*) as count FROM bookings WHERE user_id = ?";
-    $stmt = $conn->prepare($bookingCheckSql);
-    $stmt->bind_param("i", $userId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $bookingCount = $result->fetch_assoc()['count'];
+    // Don't allow deleting the main admin account
+    if ($userId === 1) {
+        header("Location: users.php?error=Cannot+delete+main+admin+account");
+        exit;
+    }
 
-    if ($bookingCount > 0) {
-        // User has bookings, cannot delete
-        echo '<div class="alert alert-danger">You need to delete the bookings first before deleting the account.</div>';
+    $deleteSql = "DELETE FROM users WHERE id = ?";
+    $stmt = $conn->prepare($deleteSql);
+    $stmt->bind_param("i", $userId);
+
+    if ($stmt->execute()) {
+        header("Location: users.php?success=User+deleted+successfully");
+        exit;
     } else {
-        // No bookings, proceed to delete user
-        $deleteUserSql = "DELETE FROM users WHERE id = ?";
-        $stmt = $conn->prepare($deleteUserSql);
-        $stmt->bind_param("i", $userId);
-        if ($stmt->execute()) {
-            header("Location: users.php?success=User+deleted+successfully");
-            exit();
-        } else {
-            echo "Error deleting user.";
-        }
+        header("Location: users.php?error=Failed+to+delete+user");
+        exit;
     }
 }
 
-// Get all users
-$sql = "SELECT u.*, r.name AS role FROM users u JOIN roles r ON u.role_id = r.id ORDER BY u.created_at DESC";
-$result = $conn->query($sql);
+// Get all roles for filter dropdown
+$rolesQuery = "SELECT DISTINCT name FROM roles ORDER BY name";
+$rolesResult = $conn->query($rolesQuery);
 ?>
 
 <section class="dashboard-section">
@@ -53,8 +63,22 @@ $result = $conn->query($sql);
         </div>
 
         <div class="dashboard-card" data-aos="fade-up">
-            <div class="dashboard-card-header">
+            <div class="dashboard-card-header d-flex justify-content-between align-items-center">
                 <h2><i class="fas fa-users me-2"></i>All Users</h2>
+                <div class="filter-section">
+                    <form method="get" class="d-flex align-items-center">
+                        <label for="role" class="me-2">Filter by Role:</label>
+                        <select name="role" id="role" class="form-select" onchange="this.form.submit()">
+                            <option value="">All Roles</option>
+                            <?php while($role = $rolesResult->fetch_assoc()): ?>
+                            <option value="<?php echo htmlspecialchars($role['name']); ?>" 
+                                    <?php echo $roleFilter === $role['name'] ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($role['name']); ?>
+                            </option>
+                            <?php endwhile; ?>
+                        </select>
+                    </form>
+                </div>
             </div>
             <div class="dashboard-card-body">
                 <div class="table-responsive">
@@ -85,7 +109,9 @@ $result = $conn->query($sql);
                                     <a href="edit-user.php?id=<?php echo $user['id']; ?>" class="btn btn-sm btn-primary">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <a href="users.php?delete_user_id=<?php echo $user['id']; ?>" onclick="return confirm('Are you sure you want to delete this user?');" class="btn btn-sm btn-danger">
+                                    <a href="users.php?delete_user_id=<?php echo $user['id']; ?>" 
+                                       onclick="return confirm('Are you sure you want to delete this user?');" 
+                                       class="btn btn-sm btn-danger">
                                         <i class="fas fa-trash"></i>
                                     </a>
                                 </td>

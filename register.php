@@ -1,4 +1,3 @@
-
 <?php
 // Include header
 include 'includes/header.php';
@@ -19,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $confirmPassword = $_POST['confirm_password'];
     $fullName = sanitizeInput($_POST['full_name']);
     $phone = sanitizeInput($_POST['phone']);
-    $role = isset($_POST['role']) ? $_POST['role'] : 'traveler';
+    $role = 'traveler'; // Default role set to traveler
     $address = ''; // Default empty address
 
     // Validate passwords match
@@ -83,14 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         <input type="tel" class="form-control" id="phone" name="phone">
                                     </div>
 
-                                    <div class="mb-3">
-                                        <label for="role" class="form-label">Account Type</label>
-                                        <select class="form-control" id="role" name="role" required>
-                                            <option value="Traveler">Traveler</option>
-                                            <option value="Tour Operator">Tour Operator</option>
-                                            <option value="Admin">Admin</option>
-                                        </select>
-                                    </div>
+                                    <input type="hidden" name="role" value="traveler">
 
                                     <div class="mb-3">
                                         <label for="password" class="form-label">Password</label>

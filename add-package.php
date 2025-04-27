@@ -32,13 +32,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_package'])) {
     if (empty($title) || empty($description) || $price <= 0 || $duration <= 0) {
         $message = '<div class="alert alert-danger">Please fill all required fields with valid data.</div>';
     } else {
+        $imageUrl = sanitizeInput($_POST['image_url']);
         // Insert package into database
         $sql = "INSERT INTO packages (destination_id, title, description, price, duration, max_travelers, 
-                itinerary, inclusions, exclusions, featured, discount_percent, created_by, status) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                itinerary, inclusions, exclusions, featured, discount_percent, created_by, status, image_url) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("issdiisssiiis", $destinationId, $title, $description, $price, $duration, 
-                        $maxTravelers, $itinerary, $inclusions, $exclusions, $featured, $discountPercent, $operatorId, $status);
+        $stmt->bind_param("issdiisssiisss", $destinationId, $title, $description, $price, $duration, 
+                        $maxTravelers, $itinerary, $inclusions, $exclusions, $featured, $discountPercent, $operatorId, $status, $imageUrl);
 
         if ($stmt->execute()) {
             $packageId = $stmt->insert_id;

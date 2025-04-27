@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 27, 2025 at 10:58 AM
+-- Generation Time: Apr 27, 2025 at 12:16 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -201,7 +201,8 @@ INSERT INTO `packages` (`id`, `destination_id`, `title`, `description`, `price`,
 (3, 3, 'Cebu Island Adventure', 'Explore the rich culture and beautiful beaches of Cebu.', 8000.00, 5, 10, 'Day 1: Arrival\r\nDay 2: Island Hopping \r\nDay 3: City Tour\r\nDay 4: Waterfall Tour\r\nDay 5: Departure', 'Accommodations\r\nBreakfast\r\nSightseeing', 'Airfare', 1, 0, 2, 'https://images.unsplash.com/photo-1548780772-e21fa3f2cfd7?q=80&amp;w=1932&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', '2025-04-26 09:08:14', '2025-04-26 10:27:14', 'active'),
 (4, 4, 'Bohol and Chocolate Hills Tour', 'Discover Bohol and its famous Chocolate Hills.', 8000.00, 3, 10, 'Day 1: Arrival and Tour\r\nDay 2: Adventure Activities\r\nDay 3: Departure', 'Accommodations\r\nBreakfast', 'Meal', 1, 0, 2, 'https://images.unsplash.com/photo-1581521801296-5bdb5065472f?q=80&amp;w=1934&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', '2025-04-26 09:08:14', '2025-04-26 10:24:36', 'active'),
 (5, 5, 'Siargao Surfing Package', 'Surf the best waves in Siargao.', 15000.00, 4, 10, 'Day 1: Arrival\r\nDay 2: Surfing\r\nDay 3: Island Hopping\r\nDay 4: Departure', 'Accommodations\r\nSurfboard Rental', 'Meals', 1, 0, 2, 'https://gttp.images.tshiftcdn.com/316099/x/0/surigao-del-norte-siargao-guyam-island-shutterstock-1177486879-min.jpg?w=380&amp;amp;h=411&amp;amp;fit=crop&amp;amp;crop=center&amp;amp;auto=compress&amp;amp;q=62&amp;amp;dpr=2&amp;amp;fm=pjpg&amp;amp;ixlib=rea', '2025-04-26 09:08:14', '2025-04-27 08:47:56', 'active'),
-(7, 6, 'Tagaytay City', 'g', 500.00, 1, 10, '1', '1', '1', 0, 0, 1, 'https://images.unsplash.com/photo-1604237233847-0cd10a179521?q=80&amp;w=2070&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', '2025-04-27 08:15:07', '2025-04-27 08:44:57', 'active');
+(7, 6, 'Tagaytay City', 'g', 500.00, 1, 10, '1', '1', '1', 0, 0, 1, 'https://images.unsplash.com/photo-1604237233847-0cd10a179521?q=80&amp;w=2070&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', '2025-04-27 08:15:07', '2025-04-27 08:44:57', 'active'),
+(11, 6, 'Balite Adventures', 'In the historical province of Cavite the Majestic Balite Falls lies in Barangay Halang and Barangay Banay-Banay in Amadeo, it comes with a variety of natural resources, species, and natural beauty which is considered as one of the Nature Wonder tourist attractions in Cavite.', 1500.00, 1, 10, 'Day 1: Arrival and Activities', 'Entrance Fee\r\nEco Fee\r\nCottage', 'Meals\r\nTravel Expenses', 1, 0, 2, 'https://shoestringdiary.wordpress.com/wp-content/uploads/2017/08/balite_falls14newss_diaries.jpg', '2025-04-27 09:33:51', '2025-04-27 10:12:17', 'active');
 
 -- --------------------------------------------------------
 
@@ -283,10 +284,10 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `role_id`, `full_name`, `username`, `email`, `password`, `phone`, `address`, `profile_img`, `created_at`, `updated_at`, `status`) VALUES
-(1, 1, 'Admin User', 'admin', 'admin@wanderlust.com', '$2y$10$Jrjwyrxcn621teAORnZdCeAa/oXK/ez70XSeoA7ngFy5IxAGKFwKG', '+639123456789', NULL, 'default-user.jpg', '2025-04-26 09:08:14', '2025-04-26 09:08:14', 'active'),
-(2, 2, 'Tour Operator', 'operator', 'operator@wanderlust.com', '$2y$10$UxIMrOjCLaBc1UJ6/5uRCuIfnNtuEkD4prnBKHkKKYMZlW5YumPmC', '+639123456790', NULL, 'default-user.jpg', '2025-04-26 09:08:14', '2025-04-26 09:08:14', 'active'),
+(1, 1, 'Admin User', 'admin', 'admin@lakwartsero.com', '$2y$10$Jrjwyrxcn621teAORnZdCeAa/oXK/ez70XSeoA7ngFy5IxAGKFwKG', '+639123456789', NULL, 'default-user.jpg', '2025-04-26 09:08:14', '2025-04-27 09:11:31', 'active'),
+(2, 2, 'Tour Operator', 'operator', 'operator@lakwartsero.com', '$2y$10$UxIMrOjCLaBc1UJ6/5uRCuIfnNtuEkD4prnBKHkKKYMZlW5YumPmC', '+639123456790', NULL, 'default-user.jpg', '2025-04-26 09:08:14', '2025-04-27 09:11:50', 'active'),
 (3, 3, 'Maurice Montano', 'user1', 'gawagawa1@gmail.com', '$2y$10$Qhd6Ovuq6kZ3sxCTGh8.aeVoi.VOh0WulVI9tP.aCj3Lm71P5ieAW', '09999999999', '', 'default-user.jpg', '2025-04-26 09:10:42', '2025-04-26 09:10:42', 'active'),
-(4, 3, 'Jom', 'user2', 'admin1@lakwartsero.com', '$2y$10$rdm5E1wH4TkjehTABqeoL.Qyw12p8mo9L.OPz3WZ8/h/ESz/09U9e', '09999999998', '', 'default-user.jpg', '2025-04-26 12:34:19', '2025-04-26 12:34:19', 'active');
+(5, 3, 'admin', 'fakeadmin', 'j.jomarie1435@gmail.com', '$2y$10$SVxzvGnM7iy1AFZZfVLz9Oqqprv07cZxbPgeCKRzcqvHBjBJAv21q', '09997914791', '', 'default-user.jpg', '2025-04-27 09:07:24', '2025-04-27 09:07:24', 'active');
 
 --
 -- Indexes for dumped tables
@@ -407,7 +408,7 @@ ALTER TABLE `message_replies`
 -- AUTO_INCREMENT for table `packages`
 --
 ALTER TABLE `packages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `payments`
@@ -431,7 +432,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Constraints for dumped tables
