@@ -143,45 +143,21 @@ if (isset($_GET['mark_read']) && isset($_GET['message_id'])) {
             <div class="col-lg-5" data-aos="fade-up" id="messages">
                 <div class="dashboard-card">
                     <div class="dashboard-card-header">
-                        <h2><i class="fas fa-envelope me-2"></i>Unread Messages <span class="badge bg-danger"><?php echo $pendingMessages; ?></span></h2>
+                        <h2><i class="fas fa-envelope me-2"></i>Messages</h2>
                     </div>
-                    <div class="dashboard-card-body">
-                        <?php if (count($unreadMessages) > 0): ?>
-                        <div class="message-list">
-                            <?php foreach($unreadMessages as $message): ?>
-                            <div class="message-item">
-                                <div class="message-header">
-                                    <div class="message-sender">
-                                        <strong><?php echo $message['name']; ?></strong>
-                                        <span class="text-muted"><?php echo $message['email']; ?></span>
-                                    </div>
-                                    <div class="message-date">
-                                        <?php echo date('M d, Y', strtotime($message['created_at'])); ?>
-                                    </div>
-                                </div>
-                                <div class="message-subject">
-                                    <strong>Subject:</strong> <?php echo $message['subject']; ?>
-                                </div>
-                                <div class="message-preview">
-                                    <?php echo substr($message['message'], 0, 100); ?>...
-                                </div>
-                                <div class="message-actions">
-                                    <a href="view-message.php?id=<?php echo $message['id']; ?>" class="btn btn-sm btn-primary">View</a>
-                                    <a href="admin-dashboard.php?mark_read=1&message_id=<?php echo $message['id']; ?>" class="btn btn-sm btn-outline-success">Mark as Read</a>
-                                </div>
-                            </div>
-                            <?php endforeach; ?>
-                        </div>
-                        <div class="text-end mt-3">
-                            <a href="messages.php?filter=unread" class="btn btn-sm btn-outline-warning me-2">View Unread Messages</a>
-                            <a href="messages.php" class="btn btn-sm btn-outline-primary">View All Messages</a>
-                        </div>
-                        <?php else: ?>
-                        <div class="alert alert-info">No unread messages.</div>
-                        <div class="text-end mt-3">
-                            <a href="messages.php" class="btn btn-sm btn-outline-primary">View All Messages</a>
+                    <div class="dashboard-card-body text-center py-4">
+                        <i class="fas fa-comments fa-3x mb-3 text-muted"></i>
+                        <h4 class="mb-3">Message Center</h4>
+                        <?php if ($pendingMessages > 0): ?>
+                        <div class="mb-3">
+                            <span class="badge bg-danger">
+                                <?php echo $pendingMessages; ?> Unread <?php echo $pendingMessages == 1 ? 'Message' : 'Messages'; ?>
+                            </span>
                         </div>
                         <?php endif; ?>
+                        <a href="messages.php" class="btn btn-primary">
+                            <i class="fas fa-envelope me-2"></i>View All Messages
+                        </a>
                     </div>
                 </div>
             </div>
