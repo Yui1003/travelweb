@@ -3,15 +3,7 @@
 include 'includes/functions.php';
 include 'includes/header.php';
 
-// Define destination images
-$destinationImages = [
-    'Bohol' => 'https://images.unsplash.com/photo-1667823506151-836beb11723d?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Chocolate Hills
-    'Boracay' => 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80', // White Beach 
-    'Cebu' => 'https://images.unsplash.com/photo-1495162048225-6b3b37b8a69e?q=80&w=1933&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Cebu City
-    'Palawan' => 'https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // El Nido Lagoon
-    'Siargao' => 'https://images.unsplash.com/photo-1565340076637-825894a74ca6?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', // Cloud 9 Wave
-    'Cavite' => 'https://images.unsplash.com/photo-1679391890663-80f4daeb4041?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' // Cavite Updated Image
-];
+
 
 
 
@@ -93,7 +85,7 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
 
                 <!-- Destination Image -->
                 <div class="mb-4" data-aos="fade-up">
-                    <img src="<?php echo isset($destinationImages[$destination['name']]) ? $destinationImages[$destination['name']] : 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&q=80'; ?>" alt="<?php echo htmlspecialchars($destination['name']); ?>" class="img-fluid rounded">
+                    <img src="<?php echo !empty($destination['image_url']) ? htmlspecialchars($destination['image_url']) : 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&q=80'; ?>" alt="<?php echo htmlspecialchars($destination['name']); ?>" class="img-fluid rounded">
                 </div>
 
                 <!-- Attractions -->
@@ -128,7 +120,7 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
                             <?php foreach ($packages as $package): ?>
                                 <div class="col-md-6 mb-4">
                                     <div class="package-card h-100">
-                                        <img src="<?php echo !empty($package['image_url']) ? $package['image_url'] : 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&q=80'; ?>" alt="<?php echo htmlspecialchars($package['title']); ?>" class="package-img">
+                                        <img src="<?php echo !empty($package['image_url']) ? htmlspecialchars($package['image_url']) : 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&q=80'; ?>" alt="<?php echo htmlspecialchars($package['title']); ?>" class="package-img">
                                         <div class="package-card-content">
                                             <h3><?php echo htmlspecialchars($package['title']); ?></h3>
                                             <div class="package-meta">
@@ -196,7 +188,7 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
             <?php foreach ($packages as $package): ?>
                 <div class="col-md-6 col-lg-4 mb-4">
                     <div class="package-card h-100" data-aos="fade-up">
-                        <img src="<?php echo htmlspecialchars($package['image_url']); ?>" alt="<?php echo htmlspecialchars($package['title']); ?>" class="package-img">
+                        <img src="<?php echo !empty($package['image_url']) ? htmlspecialchars($package['image_url']) : 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&q=80'; ?>" alt="<?php echo htmlspecialchars($package['title']); ?>" class="package-img">
                         <div class="package-card-content">
                             <h3><?php echo htmlspecialchars($package['title']); ?></h3>
                             <div class="package-meta">
@@ -230,7 +222,7 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
             <?php foreach ($destinations as $destination): ?>
                 <div class="col-md-6 col-lg-4 mb-4">
                     <div class="destination-card" data-aos="fade-up">
-                        <img src="<?php echo isset($destinationImages[$destination['name']]) ? $destinationImages[$destination['name']] : 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&q=80'; ?>" alt="<?php echo $destination['name']; ?>" class="destination-img">
+                        <img src="<?php echo !empty($destination['image_url']) ? $destination['image_url'] : 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&q=80'; ?>" alt="<?php echo $destination['name']; ?>" class="destination-img">
                         <div class="destination-card-overlay">
                             <h3><?php echo $destination['name']; ?></h3>
                             <div class="location">

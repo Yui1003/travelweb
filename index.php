@@ -49,17 +49,11 @@ $featuredPackages = getFeaturedPackages($conn);
         
         <div class="row">
             <?php 
-            // Define destination images
-            $destinationImages = [
-                'Bohol' => 'https://images.unsplash.com/photo-1667823506151-836beb11723d?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-                'Boracay' => 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80',
-                'Cebu' => 'https://images.unsplash.com/photo-1495162048225-6b3b37b8a69e?q=80&w=1933&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-                'Palawan' => 'https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
-            ];
+            
             foreach ($featuredDestinations as $destination): ?>
             <div class="col-md-6 col-lg-3">
                 <div class="destination-card" data-aos="fade-up">
-                    <img src="<?php echo isset($destinationImages[$destination['name']]) ? $destinationImages[$destination['name']] : 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&q=80'; ?>" alt="<?php echo $destination['name']; ?>" class="destination-img">
+                    <img src="<?php echo !empty($destination['image_url']) ? $destination['image_url'] : 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&q=80'; ?>" alt="<?php echo $destination['name']; ?>" class="destination-img">
                     <div class="destination-card-overlay">
                         <h3><?php echo $destination['name']; ?></h3>
                         <div class="location">
