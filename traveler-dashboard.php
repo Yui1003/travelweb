@@ -323,23 +323,108 @@ include 'includes/header.php';
 
                 <!-- Message Admin Section -->
                 <div class="card mt-4">
-                    <div class="card-header">
-                        <h5><i class="fas fa-envelope me-2"></i>Message Admin</h5>
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-envelope me-2"></i>Messages</h5>
                     </div>
                     <div class="card-body">
-                        <form method="post" action="traveler-dashboard.php">
+                        <div class="messages-container mb-4" style="height: 400px; overflow-y: auto;">
+                            <?php
+                            // Get conversation history
+                            $sql = "SELECT m.*, COALESCE(u.full_name, 'Admin') as sender_name 
+                                   FROM messages m 
+                                   LEFT JOIN users u ON m.user_id = u.id 
+                                   WHERE m.user_id = ? OR m.to_user_id = ?
+                                   ORDER BY m.created_at ASC";
+                            $stmt = $conn->prepare($sql);
+                            $stmt->bind_param("ii", $_SESSION['user_id'], $_SESSION['user_id']);
+                            $stmt->execute();
+                            $result = $stmt->get_result();
+                            
+                            while ($msg = $result->fetch_assoc()):
+                                $isOwn = $msg['user_id'] == $_SESSION['user_id'];
+                            ?>
+                                <div class="message-bubble <?php echo $isOwn ? 'own-message' : 'other-message'; ?> mb-3">
+                                    <div class="message-header">
+                                        <strong><?php echo htmlspecialchars($msg['sender_name']); ?></strong>
+                                        <small class="text-muted"><?php echo date('M d, Y h:i A', strtotime($msg['created_at'])); ?></small>
+                                    </div>
+                                    <?php if (!empty($msg['subject'])): ?>
+                                        <div class="message-subject">
+                                            <em>Subject: <?php echo htmlspecialchars($msg['subject']); ?></em>
+                                        </div>
+                                    <?php endif; ?>
+                                    <div class="message-content">
+                                        <?php echo nl2br(htmlspecialchars($msg['message'])); ?>
+                                    </div>
+                                </div>
+                            <?php endwhile; ?>
+                        </div>
+
+                        <form method="post" action="traveler-dashboard.php" class="message-form">
                             <div class="mb-3">
-                                <label for="subject" class="form-label">Subject</label>
-                                <input type="text" class="form-control" id="subject" name="subject" required>
+                                <input type="text" class="form-control" id="subject" name="subject" placeholder="Subject (optional)">
                             </div>
-                            <div class="mb-3">
-                                <label for="message" class="form-label">Message</label>
-                                <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
+                            <div class="input-group">
+                                <textarea class="form-control" id="message" name="message" rows="2" placeholder="Type your message..." required></textarea>
+                                <button type="submit" name="send_message" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
                             </div>
-                            <button type="submit" name="send_message" class="btn btn-primary">Send Message</button>
                         </form>
                     </div>
                 </div>
+
+                <style>
+                .messages-container {
+                    padding: 1rem;
+                    background: #f8f9fa;
+                    border-radius: 0.5rem;
+                }
+                .message-bubble {
+                    max-width: 80%;
+                    padding: 0.75rem;
+                    border-radius: 1rem;
+                    position: relative;
+                }
+                .own-message {
+                    background: #0d6efd;
+                    color: white;
+                    margin-left: auto;
+                    border-bottom-right-radius: 0.25rem;
+                }
+                .other-message {
+                    background: white;
+                    margin-right: auto;
+                    border-bottom-left-radius: 0.25rem;
+                    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+                }
+                .own-message .text-muted {
+                    color: rgba(255,255,255,0.7) !important;
+                }
+                .message-header {
+                    font-size: 0.875rem;
+                    margin-bottom: 0.5rem;
+                }
+                .message-subject {
+                    font-size: 0.875rem;
+                    margin-bottom: 0.5rem;
+                }
+                .message-content {
+                    word-break: break-word;
+                }
+                .message-form .input-group {
+                    border: 1px solid #dee2e6;
+                    border-radius: 0.5rem;
+                    overflow: hidden;
+                }
+                .message-form textarea {
+                    border: none;
+                    resize: none;
+                }
+                .message-form .btn {
+                    border-radius: 0;
+                }
+                </style>
             </div>
         </div>
     </div>

@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 require_once 'includes/auth.php';
@@ -7,62 +6,38 @@ requireAdmin();
 
 include 'includes/header.php';
 
-// Handle message actions
-if (isset($_POST['action'])) {
-    $messageId = (int)$_POST['message_id'];
-
-    if ($_POST['action'] === 'delete') {
-        $sql = "DELETE FROM messages WHERE id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $messageId);
-        $stmt->execute();
-        echo "<script>window.location.href = 'messages.php';</script>";
-        exit();
-    } elseif ($_POST['action'] === 'mark_read') {
-        $sql = "UPDATE messages SET status = 'read' WHERE id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $messageId);
-        $stmt->execute();
-        echo "<script>window.location.href = 'messages.php';</script>";
-        exit();
-    }
-}
-
 // Handle reply submission
 if (isset($_POST['send_reply'])) {
     $userId = $_SESSION['user_id'];
     $toUserId = (int)$_POST['to_user_id'];
-    $subject = "Re: " . sanitizeInput($_POST['reply_subject']);
     $message = sanitizeInput($_POST['reply_message']);
 
-    $sql = "INSERT INTO messages (user_id, to_user_id, name, email, subject, message) VALUES (?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO messages (user_id, to_user_id, message) VALUES (?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("iissss", $userId, $toUserId, $_SESSION['full_name'], $_SESSION['email'], $subject, $message);
-    
+    $stmt->bind_param("iis", $userId, $toUserId, $message);
+
     if ($stmt->execute()) {
-        echo "<script>
-            alert('Reply sent successfully!');
-            window.location.href = 'messages.php';
-        </script>";
+        echo "<script>window.location.href = 'messages.php';</script>";
         exit();
     } else {
         echo "<script>alert('Error sending reply: " . $stmt->error . "');</script>";
     }
 }
 
-$filter = isset($_GET['filter']) ? $_GET['filter'] : 'all';
-$whereClause = $filter === 'unread' ? "WHERE status = 'unread'" : "";
-
-$sql = "SELECT m.*, u.full_name as sender_name FROM messages m LEFT JOIN users u ON m.user_id = u.id $whereClause ORDER BY m.created_at DESC";
-$result = $conn->query($sql);
-$messages = [];
-while ($row = $result->fetch_assoc()) {
-    $messages[] = $row;
-}
+// Get all users who have messages
+$sql = "SELECT DISTINCT u.id, u.full_name, u.email 
+        FROM users u 
+        LEFT JOIN messages m ON (m.user_id = u.id OR m.to_user_id = u.id) 
+        WHERE u.id != ? AND u.role_id != (SELECT id FROM roles WHERE name = 'admin')
+        ORDER BY u.full_name";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $_SESSION['user_id']);
+$stmt->execute();
+$usersResult = $stmt->get_result();
 ?>
 
 <section class="dashboard-section">
-    <div class="container">
+    <div class="container-fluid">
         <div class="dashboard-header" data-aos="fade-up">
             <h1>Messages</h1>
             <nav aria-label="breadcrumb">
@@ -73,162 +48,208 @@ while ($row = $result->fetch_assoc()) {
             </nav>
         </div>
 
-        <div class="dashboard-card" data-aos="fade-up">
-            <div class="dashboard-card-header d-flex justify-content-between align-items-center">
-                <h2><i class="fas fa-envelope me-2"></i>All Messages</h2>
-                <div class="filter-buttons">
-                    <a href="messages.php" class="btn btn-sm btn-<?php echo $filter === 'all' ? 'primary' : 'outline-primary'; ?>">All Messages</a>
-                    <a href="messages.php?filter=unread" class="btn btn-sm btn-<?php echo $filter === 'unread' ? 'warning' : 'outline-warning'; ?>">Unread Messages</a>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card users-list">
+                    <div class="card-header">
+                        <h5 class="mb-0">Conversations</h5>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <?php while ($user = $usersResult->fetch_assoc()): ?>
+                            <a href="#" class="list-group-item list-group-item-action user-chat" 
+                               data-user-id="<?php echo $user['id']; ?>"
+                               data-user-name="<?php echo htmlspecialchars($user['full_name']); ?>">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <div class="avatar">
+                                            <?php echo substr($user['full_name'], 0, 1); ?>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="mb-0"><?php echo htmlspecialchars($user['full_name']); ?></h6>
+                                        <small class="text-muted"><?php echo htmlspecialchars($user['email']); ?></small>
+                                    </div>
+                                </div>
+                            </a>
+                        <?php endwhile; ?>
+                    </div>
                 </div>
             </div>
-            <div class="dashboard-card-body">
-                <?php if (count($messages) > 0): ?>
-                    <div class="message-list">
-                        <?php foreach($messages as $message): ?>
-                            <div class="message-item <?php echo $message['status'] === 'unread' ? 'unread' : ''; ?>">
-                                <div class="message-header">
-                                    <div class="message-sender">
-                                        <strong><?php echo htmlspecialchars($message['sender_name'] ?? $message['name']); ?></strong>
-                                        <span class="text-muted"><?php echo htmlspecialchars($message['email']); ?></span>
-                                    </div>
-                                    <div class="message-date">
-                                        <?php echo date('M d, Y h:i A', strtotime($message['created_at'])); ?>
-                                    </div>
-                                </div>
-                                <div class="message-subject">
-                                    <strong>Subject:</strong> <?php echo htmlspecialchars($message['subject']); ?>
-                                </div>
-                                <div class="message-content">
-                                    <?php echo nl2br(htmlspecialchars($message['message'])); ?>
-                                </div>
-                                <div class="message-actions mt-3">
-                                    <button class="btn btn-sm btn-primary toggle-reply" data-message-id="<?php echo $message['id']; ?>">
-                                        <i class="fas fa-reply"></i> Reply
-                                    </button>
-                                    <?php if ($message['status'] === 'unread'): ?>
-                                        <form method="post" class="d-inline">
-                                            <input type="hidden" name="message_id" value="<?php echo $message['id']; ?>">
-                                            <input type="hidden" name="action" value="mark_read">
-                                            <button type="submit" class="btn btn-sm btn-success">
-                                                <i class="fas fa-check"></i> Mark as Read
-                                            </button>
-                                        </form>
-                                    <?php endif; ?>
-                                    <form method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this message?');">
-                                        <input type="hidden" name="message_id" value="<?php echo $message['id']; ?>">
-                                        <input type="hidden" name="action" value="delete">
-                                        <button type="submit" class="btn btn-sm btn-danger">
-                                            <i class="fas fa-trash"></i> Delete
-                                        </button>
-                                    </form>
-                                </div>
 
-                                <div class="reply-form mt-3" id="replyForm<?php echo $message['id']; ?>" style="display: none;">
-                                    <form method="post">
-                                        <input type="hidden" name="to_user_id" value="<?php echo $message['user_id']; ?>">
-                                        <input type="hidden" name="reply_subject" value="<?php echo htmlspecialchars($message['subject']); ?>">
-                                        <div class="mb-3">
-                                            <label for="reply_message<?php echo $message['id']; ?>" class="form-label">Your Reply</label>
-                                            <textarea class="form-control" id="reply_message<?php echo $message['id']; ?>" name="reply_message" rows="3" required></textarea>
-                                        </div>
-                                        <div class="mb-3">
-                                            <button type="submit" name="send_reply" class="btn btn-primary">Send Reply</button>
-                                            <button type="button" class="btn btn-secondary ms-2 cancel-reply" data-message-id="<?php echo $message['id']; ?>">Cancel</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
+            <div class="col-md-8">
+                <div class="card chat-container">
+                    <div class="card-header chat-header d-none">
+                        <h5 class="mb-0 selected-user-name"></h5>
                     </div>
-                <?php else: ?>
-                    <div class="alert alert-info">No messages found.</div>
-                <?php endif; ?>
+                    <div class="card-body chat-messages">
+                        <div class="select-chat-prompt">
+                            <i class="fas fa-comments fa-3x mb-3"></i>
+                            <h4>Select a conversation to start messaging</h4>
+                        </div>
+                    </div>
+                    <div class="card-footer chat-input d-none">
+                        <form class="reply-form" method="post">
+                            <input type="hidden" name="to_user_id" class="reply-to-user-id">
+                            <div class="input-group">
+                                <textarea class="form-control" name="reply_message" rows="1" placeholder="Type your message..."></textarea>
+                                <button type="submit" name="send_reply" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Toggle reply form
-    document.querySelectorAll('.toggle-reply').forEach(button => {
-        button.addEventListener('click', function() {
-            const messageId = this.dataset.messageId;
-            const replyForm = document.getElementById('replyForm' + messageId);
-            replyForm.style.display = 'block';
-            this.style.display = 'none';
-        });
-    });
-
-    // Cancel reply
-    document.querySelectorAll('.cancel-reply').forEach(button => {
-        button.addEventListener('click', function() {
-            const messageId = this.dataset.messageId;
-            const replyForm = document.getElementById('replyForm' + messageId);
-            const replyButton = replyForm.previousElementSibling.querySelector('.toggle-reply');
-            replyForm.style.display = 'none';
-            replyButton.style.display = 'inline-block';
-        });
-    });
-});
-</script>
-
 <style>
-.message-list {
-    max-height: none;
+.users-list {
+    height: calc(100vh - 200px);
+    overflow-y: auto;
 }
 
-.message-item {
-    background: #fff;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
-    transition: all 0.3s ease;
-}
-
-.message-item.unread {
-    background: #f8f9fa;
-    border-left: 4px solid #ffc107;
-}
-
-.message-header {
+.avatar {
+    width: 40px;
+    height: 40px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 50%;
     display: flex;
-    justify-content: space-between;
-    margin-bottom: 15px;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
 }
 
-.message-sender {
+.chat-container {
+    height: calc(100vh - 200px);
     display: flex;
     flex-direction: column;
 }
 
-.message-date {
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+.select-chat-prompt {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     color: #6c757d;
-    font-size: 0.9em;
 }
 
-.message-subject {
-    margin-bottom: 10px;
+.message-bubble {
+    max-width: 75%;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    border-radius: 1rem;
+    position: relative;
 }
 
-.message-content {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 4px;
-    margin-bottom: 15px;
-    white-space: pre-wrap;
+.message-bubble.sent {
+    margin-left: auto;
+    background-color: #007bff;
+    color: white;
+    border-bottom-right-radius: 0.25rem;
 }
 
-.message-actions {
+.message-bubble.received {
+    margin-right: auto;
+    background-color: #f8f9fa;
+    border-bottom-left-radius: 0.25rem;
+}
+
+.message-time {
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+    opacity: 0.8;
+}
+
+.chat-input {
+    padding: 1rem;
+    background-color: #f8f9fa;
+}
+
+.chat-input textarea {
+    resize: none;
+    border-radius: 1.5rem;
+    padding-right: 4rem;
+}
+
+.chat-input .btn {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin: auto 0.5rem;
+    padding: 0;
     display: flex;
-    gap: 10px;
-}
-
-.filter-buttons {
-    gap: 10px;
-    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const userChats = document.querySelectorAll('.user-chat');
+    const chatMessages = document.querySelector('.chat-messages');
+    const chatHeader = document.querySelector('.chat-header');
+    const chatInput = document.querySelector('.chat-input');
+    const selectChatPrompt = document.querySelector('.select-chat-prompt');
+
+    function loadMessages(userId) {
+        fetch(`get_messages.php?user_id=${userId}`)
+            .then(response => response.json())
+            .then(messages => {
+                chatMessages.innerHTML = messages.map(msg => `
+                    <div class="message-bubble ${msg.user_id === <?php echo $_SESSION['user_id']; ?> ? 'sent' : 'received'}">
+                        <div class="message-sender">${msg.sender_name}</div>
+                        <div class="message-content">${msg.message}</div>
+                        <div class="message-time">${new Date(msg.created_at).toLocaleString()}</div>
+                    </div>
+                `).join('');
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    userChats.forEach(chat => {
+        chat.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            userChats.forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+
+            const userId = this.dataset.userId;
+            const userName = this.dataset.userName;
+
+            chatHeader.classList.remove('d-none');
+            chatInput.classList.remove('d-none');
+            selectChatPrompt.style.display = 'none';
+
+            document.querySelector('.selected-user-name').textContent = userName;
+            document.querySelector('.reply-to-user-id').value = userId;
+
+            loadMessages(userId);
+        });
+    });
+
+    // Auto-refresh messages every 5 seconds
+    setInterval(() => {
+        const activeChat = document.querySelector('.user-chat.active');
+        if (activeChat) {
+            loadMessages(activeChat.dataset.userId);
+        }
+    }, 5000);
+});
+</script>
 
 <?php include 'includes/footer.php'; ?>
