@@ -148,13 +148,6 @@ if (isset($_GET['mark_read']) && isset($_GET['message_id'])) {
                     <div class="dashboard-card-body text-center py-4">
                         <i class="fas fa-comments fa-3x mb-3 text-muted"></i>
                         <h4 class="mb-3">Message Center</h4>
-                        <?php if ($pendingMessages > 0): ?>
-                        <div class="mb-3">
-                            <span class="badge bg-danger">
-                                <?php echo $pendingMessages; ?> Unread <?php echo $pendingMessages == 1 ? 'Message' : 'Messages'; ?>
-                            </span>
-                        </div>
-                        <?php endif; ?>
                         <a href="messages.php" class="btn btn-primary">
                             <i class="fas fa-envelope me-2"></i>View All Messages
                         </a>
