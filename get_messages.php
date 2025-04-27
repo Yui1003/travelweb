@@ -7,16 +7,16 @@ if (isset($_GET['user_id'])) {
     $userId = (int)$_GET['user_id'];
     $currentUserId = $_SESSION['user_id'];
 
+    // Get messages between the two users
     $sql = "SELECT m.*, 
             CASE 
                 WHEN m.user_id = ? THEN u.full_name
-                ELSE 'Admin'
+                ELSE u.full_name
             END as sender_name,
             m.user_id as message_user_id
             FROM messages m
             LEFT JOIN users u ON m.user_id = u.id
-            WHERE (m.user_id = ? AND m.to_user_id = ?) 
-               OR (m.user_id = ? AND m.to_user_id = ?) 
+            WHERE m.user_id = ? OR m.user_id = ? AND m.to_user_id = ? OR m.to_user_id = ?
             ORDER BY m.created_at ASC";
 
     $stmt = $conn->prepare($sql);

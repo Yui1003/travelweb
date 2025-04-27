@@ -27,7 +27,7 @@ if (isset($_POST['send_reply'])) {
 // Get all users who have messages
 $sql = "SELECT DISTINCT u.id, u.full_name, u.email 
         FROM users u 
-        LEFT JOIN messages m ON (m.user_id = u.id OR m.to_user_id = u.id) 
+        LEFT JOIN messages m ON m.user_id = u.id 
         WHERE u.id != ? AND u.role_id != (SELECT id FROM roles WHERE name = 'admin')
         ORDER BY u.full_name";
 $stmt = $conn->prepare($sql);
@@ -88,11 +88,11 @@ $usersResult = $stmt->get_result();
                         </div>
                     </div>
                     <div class="card-footer chat-input d-none">
-                        <form class="reply-form" method="post">
+                        <form class="reply-form" onsubmit="sendMessage(event)">
                             <input type="hidden" name="to_user_id" class="reply-to-user-id">
                             <div class="input-group">
-                                <textarea class="form-control" name="reply_message" rows="1" placeholder="Type your message..."></textarea>
-                                <button type="submit" name="send_reply" class="btn btn-primary">
+                                <textarea class="form-control" name="reply_message" rows="1" placeholder="Type your message..." style="padding-right: 45px;"></textarea>
+                                <button type="submit" class="btn btn-primary" style="position: absolute; right: 0; top: 0; bottom: 0; z-index: 4;">
                                     <i class="fas fa-paper-plane"></i>
                                 </button>
                             </div>
@@ -198,6 +198,33 @@ $usersResult = $stmt->get_result();
 </style>
 
 <script>
+function sendMessage(event) {
+    event.preventDefault();
+    const form = event.target;
+    const toUserId = form.querySelector('.reply-to-user-id').value;
+    const messageInput = form.querySelector('textarea');
+    const message = messageInput.value;
+
+    if (!message.trim()) return;
+
+    fetch('messages.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `send_reply=1&to_user_id=${toUserId}&reply_message=${encodeURIComponent(message)}`
+    })
+    .then(response => response.text())
+    .then(() => {
+        messageInput.value = '';
+        // Reload messages
+        const activeChat = document.querySelector('.user-chat.active');
+        if (activeChat) {
+            loadMessages(activeChat.dataset.userId);
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const userChats = document.querySelectorAll('.user-chat');
     const chatMessages = document.querySelector('.chat-messages');

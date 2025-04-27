@@ -360,13 +360,13 @@ include 'includes/header.php';
                             <?php endwhile; ?>
                         </div>
 
-                        <form method="post" action="traveler-dashboard.php" class="message-form">
+                        <form id="messageForm" class="message-form">
                             <div class="mb-3">
                                 <input type="text" class="form-control" id="subject" name="subject" placeholder="Subject (optional)">
                             </div>
                             <div class="input-group">
                                 <textarea class="form-control" id="message" name="message" rows="2" placeholder="Type your message..." required></textarea>
-                                <button type="submit" name="send_message" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-paper-plane"></i>
                                 </button>
                             </div>
@@ -432,6 +432,43 @@ include 'includes/header.php';
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Message form handling
+    const messageForm = document.getElementById('messageForm');
+    const messagesContainer = document.querySelector('.messages-container');
+    
+    messageForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        formData.append('send_message', '1');
+        
+        fetch('traveler-dashboard.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(html => {
+            // Clear the form
+            messageForm.reset();
+            
+            // Create a temporary container to parse the HTML
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            
+            // Find the messages container in the response
+            const newMessages = tempDiv.querySelector('.messages-container').innerHTML;
+            
+            // Update the messages
+            messagesContainer.innerHTML = newMessages;
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to send message. Please try again.');
+        });
+    });
     // Password visibility toggle
     const passwordToggles = document.querySelectorAll('.password-toggle');
     passwordToggles.forEach(toggle => {
