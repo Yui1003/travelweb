@@ -153,7 +153,7 @@ include 'includes/header.php';
                     <div class="text-center mb-4">
                         <h3><?php echo htmlspecialchars($user['full_name']); ?></h3>
                         <p class="text-muted"><?php echo ucfirst($user['role']); ?></p>
-                </div>
+                    </div>
 
                     <ul class="nav flex-column dashboard-tabs nav-pills mb-4" id="dashboardTab" role="tablist">
                         <li class="nav-item" role="presentation">
@@ -169,6 +169,11 @@ include 'includes/header.php';
                         <li class="nav-item" role="presentation">
                             <a class="nav-link" id="password-tab" data-bs-toggle="tab" href="#password" role="tab" aria-controls="password" aria-selected="false">
                                 <i class="fas fa-lock me-2"></i> Change Password
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" id="reviews-tab" data-bs-toggle="tab" href="#reviews" role="tab" aria-controls="reviews" aria-selected="false">
+                                <i class="fas fa-star me-2"></i> Add Review
                             </a>
                         </li>
                     </ul>
@@ -332,6 +337,88 @@ include 'includes/header.php';
                             </form>
                         </div>
                     </div>
+
+
+                    <!-- Reviews Tab -->
+                    <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
+                        <div class="dashboard-card" data-aos="fade-left">
+                            <h3>Add Review</h3>
+                            <?php
+                            // Get confirmed bookings
+                            $stmt = $conn->prepare("
+                                SELECT b.*, p.title as package_title 
+                                FROM bookings b 
+                                JOIN packages p ON b.package_id = p.id 
+                                WHERE b.user_id = ? AND b.status = 'confirmed'
+                                AND NOT EXISTS (
+                                    SELECT 1 FROM reviews r 
+                                    WHERE r.user_id = b.user_id 
+                                    AND r.package_id = b.package_id
+                                )
+                            ");
+                            $stmt->bind_param("i", $_SESSION['user_id']);
+                            $stmt->execute();
+                            $confirmedBookings = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+                            
+                            if (empty($confirmedBookings)): ?>
+                                <div class="alert alert-info">
+                                    You don't have any confirmed bookings available for review.
+                                </div>
+                            <?php else: ?>
+                                <form action="add_review.php" method="POST" class="review-form">
+                                    <div class="mb-3">
+                                        <label for="package_id" class="form-label">Select Package</label>
+                                        <select class="form-select" name="package_id" id="package_id" required>
+                                            <option value="">Choose a package...</option>
+                                            <?php foreach ($confirmedBookings as $booking): ?>
+                                                <option value="<?php echo $booking['package_id']; ?>">
+                                                    <?php echo htmlspecialchars($booking['package_title']); ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Rating</label>
+                                        <div class="star-rating">
+                                            <?php for ($i = 5; $i >= 1; $i--): ?>
+                                                <input type="radio" id="star<?php echo $i; ?>" name="rating" value="<?php echo $i; ?>" required>
+                                                <label for="star<?php echo $i; ?>"><i class="fas fa-star"></i></label>
+                                            <?php endfor; ?>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="comment" class="form-label">Your Review</label>
+                                        <textarea class="form-control" name="comment" id="comment" rows="4" required></textarea>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary">Submit Review</button>
+                                </form>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <style>
+                    .star-rating {
+                        display: inline-flex;
+                        flex-direction: row-reverse;
+                        font-size: 1.5rem;
+                    }
+                    .star-rating input {
+                        display: none;
+                    }
+                    .star-rating label {
+                        cursor: pointer;
+                        color: #ddd;
+                        padding: 0 0.2em;
+                    }
+                    .star-rating label:hover,
+                    .star-rating label:hover ~ label,
+                    .star-rating input:checked ~ label {
+                        color: #ffd700;
+                    }
+                    </style>
                 </div>
 
                 <!-- Message Admin Section -->
@@ -352,7 +439,7 @@ include 'includes/header.php';
                             $stmt->bind_param("ii", $_SESSION['user_id'], $_SESSION['user_id']);
                             $stmt->execute();
                             $result = $stmt->get_result();
-                            
+
                             while ($msg = $result->fetch_assoc()):
                                 $isOwn = $msg['user_id'] == $_SESSION['user_id'];
                             ?>
@@ -374,13 +461,13 @@ include 'includes/header.php';
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                    <form method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete all messages?');">
-                        <button type="submit" name="delete_all_messages" class="btn btn-danger">
-                            <i class="fas fa-trash"></i> Delete All Messages
-                        </button>
-                    </form>
-                </div>
-                <form id="messageForm" class="message-form">
+                            <form method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete all messages?');">
+                                <button type="submit" name="delete_all_messages" class="btn btn-danger">
+                                    <i class="fas fa-trash"></i> Delete All Messages
+                                </button>
+                            </form>
+                        </div>
+                        <form id="messageForm" class="message-form">
                             <div class="mb-3">
                                 <input type="text" class="form-control" id="subject" name="subject" placeholder="Subject (optional)">
                             </div>
@@ -455,13 +542,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Message form handling
     const messageForm = document.getElementById('messageForm');
     const messagesContainer = document.querySelector('.messages-container');
-    
+
     messageForm.addEventListener('submit', function(e) {
         e.preventDefault();
-        
+
         const formData = new FormData(this);
         formData.append('send_message', '1');
-        
+
         fetch('traveler-dashboard.php', {
             method: 'POST',
             body: formData
@@ -470,17 +557,17 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(html => {
             // Clear the form
             messageForm.reset();
-            
+
             // Create a temporary container to parse the HTML
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = html;
-            
+
             // Find the messages container in the response
             const newMessages = tempDiv.querySelector('.messages-container').innerHTML;
-            
+
             // Update the messages
             messagesContainer.innerHTML = newMessages;
-            
+
             // Scroll to bottom
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         })

@@ -173,77 +173,52 @@ include 'includes/header.php';
         </div>
         
         <div class="row">
+            <?php
+            // Get latest approved reviews
+            $stmt = $conn->prepare("
+                SELECT r.*, u.full_name, p.title as package_title 
+                FROM reviews r 
+                JOIN users u ON r.user_id = u.id 
+                JOIN packages p ON r.package_id = p.id 
+                WHERE r.status = 'approved' 
+                ORDER BY r.created_at DESC 
+                LIMIT 3
+            ");
+            $stmt->execute();
+            $reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+            foreach ($reviews as $index => $review):
+                $delay = $index * 100;
+            ?>
             <div class="col-md-4">
-                <div class="testimonial-card" data-aos="fade-up">
+                <div class="testimonial-card" data-aos="fade-up" data-aos-delay="<?php echo $delay; ?>">
                     <div class="testimonial-rating">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
+                        <?php for ($i = 1; $i <= 5; $i++): ?>
+                            <i class="fas fa-star<?php echo $i <= $review['rating'] ? '' : '-o'; ?>"></i>
+                        <?php endfor; ?>
                     </div>
                     <div class="testimonial-content">
-                        <p>"Wanderlust made our family vacation to Boracay absolutely perfect! The attention to detail, from hotel selection to activities, was exceptional. Our kids still talk about the island hopping adventure!"</p>
+                        <p>"<?php echo htmlspecialchars($review['comment']); ?>"</p>
                     </div>
                     <div class="testimonial-author">
                         <div class="testimonial-avatar">
-                            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2" alt="Emily Johnson">
+                            <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($review['full_name']); ?>&background=random" 
+                                 alt="<?php echo htmlspecialchars($review['full_name']); ?>">
                         </div>
                         <div class="testimonial-info">
-                            <h4>Emily Johnson</h4>
-                            <p>Boracay Family Adventure</p>
+                            <h4><?php echo htmlspecialchars($review['full_name']); ?></h4>
+                            <p><?php echo htmlspecialchars($review['package_title']); ?></p>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <div class="col-md-4">
-                <div class="testimonial-card" data-aos="fade-up" data-aos-delay="100">
-                    <div class="testimonial-rating">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <div class="testimonial-content">
-                        <p>"As a solo traveler, I was looking for authentic experiences and local connections. Wanderlust delivered beyond my expectations in Palawan. The underground river tour was a highlight I'll never forget!"</p>
-                    </div>
-                    <div class="testimonial-author">
-                        <div class="testimonial-avatar">
-                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" alt="David Wilson">
-                        </div>
-                        <div class="testimonial-info">
-                            <h4>David Wilson</h4>
-                            <p>Palawan Explorer Package</p>
-                        </div>
-                    </div>
-                </div>
+            <?php endforeach; ?>
+
+            <?php if (empty($reviews)): ?>
+            <div class="col-12 text-center">
+                <p>No reviews available yet.</p>
             </div>
-            
-            <div class="col-md-4">
-                <div class="testimonial-card" data-aos="fade-up" data-aos-delay="200">
-                    <div class="testimonial-rating">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="far fa-star"></i>
-                    </div>
-                    <div class="testimonial-content">
-                        <p>"My husband and I celebrated our anniversary with Wanderlust's Bohol tour. The Chocolate Hills were even more impressive than photos show, and our guide was knowledgeable and friendly throughout."</p>
-                    </div>
-                    <div class="testimonial-author">
-                        <div class="testimonial-avatar">
-                            <img src="https://images.unsplash.com/photo-1541647376583-8934aaf3448a" alt="Grace and Frank">
-                        </div>
-                        <div class="testimonial-info">
-                            <h4>Grace and Frank</h4>
-                            <p>Bohol Romantic Getaway</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <?php endif; ?>
         </div>
     </div>
 </section>
