@@ -78,8 +78,11 @@ $usersResult = $stmt->get_result();
 
             <div class="col-md-8">
                 <div class="card chat-container">
-                    <div class="card-header chat-header d-none">
+                    <div class="card-header chat-header d-none d-flex justify-content-between align-items-center">
                         <h5 class="mb-0 selected-user-name"></h5>
+                        <button class="btn btn-danger btn-sm delete-conversation" onclick="deleteConversation(document.querySelector('.reply-to-user-id').value)">
+                            <i class="fas fa-trash"></i> Delete Conversation
+                        </button>
                     </div>
                     <div class="card-body chat-messages">
                         <div class="select-chat-prompt">
@@ -198,6 +201,19 @@ $usersResult = $stmt->get_result();
 </style>
 
 <script>
+function deleteConversation(userId) {
+    if (confirm('Are you sure you want to delete this entire conversation?')) {
+        fetch(`delete-message.php?user_id=${userId}`, {
+            method: 'GET'
+        })
+        .then(response => response.text())
+        .then(() => {
+            // Reload page to refresh conversations
+            window.location.reload();
+        });
+    }
+}
+
 function sendMessage(event) {
     event.preventDefault();
     const form = event.target;
@@ -240,7 +256,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="message-bubble ${msg.user_id === <?php echo $_SESSION['user_id']; ?> ? 'sent' : 'received'}">
                         <div class="message-sender">${msg.sender_name}</div>
                         <div class="message-content">${msg.message}</div>
-                        <div class="message-time">${new Date(msg.created_at).toLocaleString()}</div>
+                        <div class="message-footer">
+                            <div class="message-time">${new Date(msg.created_at).toLocaleString()}</div>
+                        </div>
                     </div>
                 `).join('');
                 chatMessages.scrollTop = chatMessages.scrollHeight;

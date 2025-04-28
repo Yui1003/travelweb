@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 27, 2025 at 12:16 PM
+-- Generation Time: Apr 28, 2025 at 08:46 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -86,9 +86,7 @@ CREATE TABLE `bookings` (
 --
 
 INSERT INTO `bookings` (`id`, `user_id`, `package_id`, `booking_date`, `travel_date`, `num_travelers`, `total_price`, `status`, `confirmation_number`, `special_requests`, `payment_method`, `payment_status`, `reference_number`, `payment_proof`, `created_at`, `updated_at`) VALUES
-(140, 3, 4, '2025-04-27', '2025-04-30', 1, 8000.00, 'confirmed', 'BK17457140359004', '', 'gcash', 'pending', NULL, 'uploads/receipts/gcash_receipt_680d7b737a311.jpg', '2025-04-27 00:33:55', '2025-04-27 00:37:33'),
-(141, 3, 1, '2025-04-27', '2025-04-29', 1, 15000.00, 'pending', 'BK17457140586442', '', 'gcash', 'pending', NULL, 'uploads/receipts/gcash_receipt_680d7b8acd843.jpg', '2025-04-27 00:34:18', '2025-04-27 00:37:18'),
-(142, 3, 1, '2025-04-27', '2025-04-30', 1, 15000.00, 'pending', 'BK17457140694833', '', 'bank_transfer', 'pending', NULL, 'uploads/receipts/bank_receipt_680d7b95b24b9.png', '2025-04-27 00:34:29', '2025-04-27 00:37:22');
+(143, 3, 5, '2025-04-28', '2025-04-30', 1, 15000.00, 'confirmed', 'BK17457699095976', '', 'gcash', 'pending', NULL, 'uploads/receipts/gcash_receipt_680e55b599674.png', '2025-04-27 16:05:09', '2025-04-27 16:21:14');
 
 -- --------------------------------------------------------
 
@@ -140,16 +138,32 @@ CREATE TABLE `messages` (
   `message` text NOT NULL,
   `status` enum('unread','read','replied') DEFAULT 'unread',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `replied_at` timestamp NULL DEFAULT NULL
+  `replied_at` timestamp NULL DEFAULT NULL,
+  `is_blocked` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `messages`
 --
 
-INSERT INTO `messages` (`id`, `user_id`, `to_user_id`, `name`, `email`, `subject`, `message`, `status`, `created_at`, `replied_at`) VALUES
-(11, 3, NULL, 'Maurice Montano', 'gawagawa1@gmail.com', 'Discount po idol', 'Hehehe', 'unread', '2025-04-27 00:24:15', NULL),
-(12, 1, 3, 'Admin User', NULL, 'Re: Discount po idol', 'Tanga ka ba', 'unread', '2025-04-27 00:25:04', NULL);
+INSERT INTO `messages` (`id`, `user_id`, `to_user_id`, `name`, `email`, `subject`, `message`, `status`, `created_at`, `replied_at`, `is_blocked`) VALUES
+(26, 3, NULL, 'Maurice Montano', 'gawagawa1@gmail.com', '', 'Hi papi', 'unread', '2025-04-27 12:47:39', NULL, 0),
+(27, 1, 3, '', NULL, NULL, 'Hi', 'unread', '2025-04-27 12:55:37', NULL, 0),
+(28, 3, NULL, 'Maurice Montano', 'gawagawa1@gmail.com', '', 'Hi papi', 'unread', '2025-04-27 12:55:53', NULL, 0),
+(29, 1, 3, '', NULL, NULL, 'Y', 'unread', '2025-04-27 13:15:44', NULL, 0),
+(30, 1, 3, '', NULL, NULL, '123', 'unread', '2025-04-27 13:25:38', NULL, 0),
+(32, 1, 3, '', NULL, NULL, '', 'unread', '2025-04-27 14:27:21', NULL, 0),
+(33, 3, NULL, 'Maurice Montano', 'gawagawa1@gmail.com', '', 'Test message', 'unread', '2025-04-27 14:28:44', NULL, 0),
+(34, 3, NULL, 'Maurice Montano', 'gawagawa1@gmail.com', '', 'Test 2', 'unread', '2025-04-27 14:28:50', NULL, 0),
+(35, 1, 3, '', NULL, NULL, 'Wow nagana na', 'unread', '2025-04-27 14:30:58', NULL, 0),
+(36, 1, 3, '', NULL, NULL, 'Sksksks', 'unread', '2025-04-27 14:32:58', NULL, 0),
+(37, 1, 3, '', NULL, NULL, '1', 'unread', '2025-04-27 14:34:31', NULL, 0),
+(38, 3, NULL, 'Maurice Montano', 'gawagawa1@gmail.com', '', '2', 'unread', '2025-04-27 14:34:45', NULL, 0),
+(39, 3, NULL, 'Maurice Montano', 'gawagawa1@gmail.com', '', '2', 'unread', '2025-04-27 14:35:48', NULL, 0),
+(40, 3, NULL, 'Maurice Montano', 'gawagawa1@gmail.com', '', '82', 'unread', '2025-04-27 14:35:55', NULL, 0),
+(42, 1, 3, '', NULL, NULL, 'Baket idol', 'unread', '2025-04-27 15:32:14', NULL, 0),
+(43, 1, 3, '', NULL, NULL, 'Working na ba to', 'unread', '2025-04-27 15:33:04', NULL, 0),
+(46, 1, 3, '', NULL, NULL, 'oo ata', 'unread', '2025-04-27 15:37:26', NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -287,7 +301,27 @@ INSERT INTO `users` (`id`, `role_id`, `full_name`, `username`, `email`, `passwor
 (1, 1, 'Admin User', 'admin', 'admin@lakwartsero.com', '$2y$10$Jrjwyrxcn621teAORnZdCeAa/oXK/ez70XSeoA7ngFy5IxAGKFwKG', '+639123456789', NULL, 'default-user.jpg', '2025-04-26 09:08:14', '2025-04-27 09:11:31', 'active'),
 (2, 2, 'Tour Operator', 'operator', 'operator@lakwartsero.com', '$2y$10$UxIMrOjCLaBc1UJ6/5uRCuIfnNtuEkD4prnBKHkKKYMZlW5YumPmC', '+639123456790', NULL, 'default-user.jpg', '2025-04-26 09:08:14', '2025-04-27 09:11:50', 'active'),
 (3, 3, 'Maurice Montano', 'user1', 'gawagawa1@gmail.com', '$2y$10$Qhd6Ovuq6kZ3sxCTGh8.aeVoi.VOh0WulVI9tP.aCj3Lm71P5ieAW', '09999999999', '', 'default-user.jpg', '2025-04-26 09:10:42', '2025-04-26 09:10:42', 'active'),
-(5, 3, 'admin', 'fakeadmin', 'j.jomarie1435@gmail.com', '$2y$10$SVxzvGnM7iy1AFZZfVLz9Oqqprv07cZxbPgeCKRzcqvHBjBJAv21q', '09997914791', '', 'default-user.jpg', '2025-04-27 09:07:24', '2025-04-27 09:07:24', 'active');
+(5, 3, 'Jomarie Avecilla', 'fakeadmin', 'j.jomarie1435@gmail.com', '$2y$10$P0cJ5MHWf4tD0X1bBXVW4upIK4gDGAjj57qmPO3.C3cChReIfsXcm', '09997914791', '', 'default-user.jpg', '2025-04-27 09:07:24', '2025-04-28 05:23:44', 'active');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_blocks`
+--
+
+CREATE TABLE `user_blocks` (
+  `admin_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `is_blocked` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `user_blocks`
+--
+
+INSERT INTO `user_blocks` (`admin_id`, `user_id`, `is_blocked`, `created_at`) VALUES
+(1, 5, 1, '2025-04-28 05:46:15');
 
 --
 -- Indexes for dumped tables
@@ -371,6 +405,13 @@ ALTER TABLE `users`
   ADD KEY `role_id` (`role_id`);
 
 --
+-- Indexes for table `user_blocks`
+--
+ALTER TABLE `user_blocks`
+  ADD PRIMARY KEY (`admin_id`,`user_id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -384,7 +425,7 @@ ALTER TABLE `attractions`
 -- AUTO_INCREMENT for table `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=143;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=144;
 
 --
 -- AUTO_INCREMENT for table `destinations`
@@ -396,7 +437,7 @@ ALTER TABLE `destinations`
 -- AUTO_INCREMENT for table `messages`
 --
 ALTER TABLE `messages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=69;
 
 --
 -- AUTO_INCREMENT for table `message_replies`
@@ -490,6 +531,13 @@ ALTER TABLE `reviews`
 --
 ALTER TABLE `users`
   ADD CONSTRAINT `users_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`);
+
+--
+-- Constraints for table `user_blocks`
+--
+ALTER TABLE `user_blocks`
+  ADD CONSTRAINT `user_blocks_ibfk_1` FOREIGN KEY (`admin_id`) REFERENCES `users` (`id`),
+  ADD CONSTRAINT `user_blocks_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
