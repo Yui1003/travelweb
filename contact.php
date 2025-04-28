@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                         <div class="contact-info-text">
                             <h4>Office Address</h4>
-                            <p>123 Travel Street, Makati City, Metro Manila, Philippines</p>
+                            <p>CV38+C99, Rosario, Cavite</p>
                         </div>
                     </div>
                     
@@ -70,8 +70,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                         <div class="contact-info-text">
                             <h4>Phone Numbers</h4>
-                            <p>+63 (2) 8123 4567 (Office)</p>
-                            <p>+63 917 123 4567 (Mobile)</p>
+                            <p>+63 909 437 6677 (Office)</p>
+                            <p>+63 999 791 4791 (Mobile)</p>
                         </div>
                     </div>
                     
@@ -81,8 +81,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                         <div class="contact-info-text">
                             <h4>Email Address</h4>
-                            <p>info@wanderlust.com</p>
-                            <p>support@wanderlust.com</p>
+                            <p>j.jomarie1435@gmail.com</p>
+                            <p>rc.maurice.montano@cvsu.edu.ph</p>
                         </div>
                     </div>
                     
@@ -161,7 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <section class="map-section">
     <div class="container-fluid p-0">
         <div class="map-container" data-aos="fade-up">
-            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3861.802548850311!2d121.04882007495896!3d14.55436558069495!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397c90264a0ed01%3A0x2b066ed11c3916df!2sMakati%20City%2C%20Metro%20Manila!5e0!3m2!1sen!2sph!4v1689517562067!5m2!1sen!2sph" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d965.8600891203168!2d120.86597383833493!3d14.403690711804149!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTTCsDI0JzEzLjMiTiAxMjDCsDUxJzU3LjUiRQ!5e0!3m2!1sen!2sph!4v1689517562067!5m2!1sen!2sph" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
         </div>
     </div>
 </section>

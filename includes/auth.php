@@ -80,7 +80,7 @@ function registerUser($conn, $username, $email, $password, $fullName, $phone = n
 
 // Login an existing user
 function loginUser($conn, $username, $password) {
-    $sql = "SELECT u.id, u.username, u.password, u.full_name, r.name as role 
+    $sql = "SELECT u.id, u.username, u.password, u.full_name, u.status, r.name as role 
             FROM users u 
             JOIN roles r ON u.role_id = r.id 
             WHERE u.username = ? OR u.email = ?";
@@ -94,6 +94,10 @@ function loginUser($conn, $username, $password) {
     }
 
     $user = $result->fetch_assoc();
+
+    if ($user['status'] === 'banned') {
+        return ["success" => false, "message" => "Your account has been banned. Please contact support for assistance."];
+    }
 
     if (password_verify($password, $user['password'])) {
         // Set user session
