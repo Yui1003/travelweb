@@ -21,8 +21,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $role = 'traveler'; // Default role set to traveler
     $address = ''; // Default empty address
 
+    // Validate phone number format
+    if (!preg_match('/^[0-9+\-\s()]*$/', $phone)) {
+        $message = '<div class="alert alert-danger">Phone number can only contain numbers, spaces, and the following characters: + - ( )</div>';
+    }
     // Validate passwords match
-    if ($password !== $confirmPassword) {
+    else if ($password !== $confirmPassword) {
         $message = '<div class="alert alert-danger">Passwords do not match. Please try again.</div>';
     } else {
         // Register user with all required parameters
@@ -64,22 +68,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <form method="post" action="register.php">
                                     <div class="mb-3">
                                         <label for="full_name" class="form-label">Full Name</label>
-                                        <input type="text" class="form-control" id="full_name" name="full_name" required>
+                                        <input type="text" class="form-control" id="full_name" name="full_name" placeholder="Juan Dela Cruz" required>
                                     </div>
 
                                     <div class="mb-3">
                                         <label for="username" class="form-label">Username</label>
-                                        <input type="text" class="form-control" id="username" name="username" required>
+                                        <input type="text" class="form-control" id="username" name="username" placeholder="juandelacruz123" required>
                                     </div>
 
                                     <div class="mb-3">
                                         <label for="email" class="form-label">Email Address</label>
-                                        <input type="email" class="form-control" id="email" name="email" required>
+                                        <input type="email" class="form-control" id="email" name="email" placeholder="juan.delacruz@example.com" required>
                                     </div>
 
                                     <div class="mb-3">
                                         <label for="phone" class="form-label">Phone Number</label>
-                                        <input type="tel" class="form-control" id="phone" name="phone">
+                                        <input type="tel" class="form-control" id="phone" name="phone" pattern="[0-9+\-\s()]*" placeholder="+63 999 999 9999" title="Phone number can only contain numbers, spaces, and the following characters: + - ( )" required>
                                     </div>
 
                                     <input type="hidden" name="role" value="traveler">
@@ -87,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     <div class="mb-3">
                                         <label for="password" class="form-label">Password</label>
                                         <div class="input-group">
-                                            <input type="password" class="form-control" id="password" name="password" required>
+                                            <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
                                             <span class="input-group-text">
                                                 <i class="fas fa-eye password-toggle" role="button"></i>
                                             </span>
@@ -97,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     <div class="mb-3">
                                         <label for="confirm_password" class="form-label">Confirm Password</label>
                                         <div class="input-group">
-                                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Re-enter your password" required>
                                             <span class="input-group-text">
                                                 <i class="fas fa-eye password-toggle-confirm" role="button"></i>
                                             </span>

@@ -7,7 +7,7 @@ include 'includes/header.php';
 <section class="page-header" style="background-image: url('https://images.unsplash.com/photo-1596713102968-7023deed5451');">
     <div class="container">
         <h1 data-aos="fade-up">About Us</h1>
-        <p data-aos="fade-up" data-aos-delay="100">Learn more about Wanderlust Travel & Tourism</p>
+        <p data-aos="fade-up" data-aos-delay="100">Learn more about Lakwartsero Travel & Tourism</p>
     </div>
 </section>
 
@@ -16,7 +16,7 @@ include 'includes/header.php';
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6 order-lg-2" data-aos="fade-left">
-                <img src="https://images.unsplash.com/photo-1605130284535-11dd9eedc58a" alt="About Wanderlust" class="img-fluid rounded">
+                <img src="https://images.unsplash.com/photo-1605130284535-11dd9eedc58a" alt="About Lakwartsero" class="img-fluid rounded">
             </div>
             <div class="col-lg-6 order-lg-1" data-aos="fade-right">
                 <div class="about-content">
