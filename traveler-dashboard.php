@@ -69,6 +69,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_profile'])) {
 
 // Handle password update
 // Process message submission
+// Handle message deletion
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_all_messages'])) {
+    $userId = $_SESSION['user_id'];
+    $sql = "DELETE FROM messages WHERE user_id = ? OR to_user_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $userId, $userId);
+    if ($stmt->execute()) {
+        $message = '<div class="alert alert-success">All messages deleted successfully.</div>';
+    } else {
+        $message = '<div class="alert alert-danger">Error deleting messages.</div>';
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['send_message'])) {
     $subject = sanitizeInput($_POST['subject']);
     $messageText = sanitizeInput($_POST['message']);
@@ -360,7 +373,14 @@ include 'includes/header.php';
                             <?php endwhile; ?>
                         </div>
 
-                        <form id="messageForm" class="message-form">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                    <form method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete all messages?');">
+                        <button type="submit" name="delete_all_messages" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Delete All Messages
+                        </button>
+                    </form>
+                </div>
+                <form id="messageForm" class="message-form">
                             <div class="mb-3">
                                 <input type="text" class="form-control" id="subject" name="subject" placeholder="Subject (optional)">
                             </div>
